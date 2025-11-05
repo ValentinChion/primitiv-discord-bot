@@ -1,0 +1,8 @@
+
+node_modules/
+dist/
+*.log
+*.pid
+
+# Ignore .env file
+.env
