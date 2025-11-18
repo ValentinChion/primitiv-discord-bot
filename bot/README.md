@@ -157,7 +157,7 @@ Deploy the worker:
 pnpm deploy
 ```
 
-After deployment, you'll receive a URL like `https://primitiv-discord-bot.your-subdomain.workers.dev`
+After deployment, you'll receive a URL like `https://primitiv-discord-bot.primitiv-bot.workers.dev`
 
 ### 10. Update Discord Interactions URL
 
@@ -187,19 +187,25 @@ Generate an invite URL with proper permissions:
 ## 📝 Available Commands
 
 ### `/demande`
+
 Create a new financial request
+
 - **nom**: Unique name for the request (e.g., "achat_stylos")
 - **montant**: Amount in euros
 - **description**: Description of the expense
 
 ### `/confirme`
+
 Confirm a payment made with the association's card
+
 - **nom**: Name of the approved request
 - **montant**: Payment amount
 - **facture**: PDF invoice file
 
 ### `/remboursement`
+
 Request reimbursement for a personal card payment
+
 - **nom**: Name of the approved request
 - **montant**: Reimbursement amount
 - **facture**: PDF invoice file
@@ -226,20 +232,24 @@ Request reimbursement for a personal card payment
 ## 🐛 Troubleshooting
 
 ### Commands not showing up
+
 1. Make sure you ran `pnpm register`
 2. Wait up to 1 hour for global commands to propagate
 3. For faster testing, register guild-specific commands (modify `register.ts`)
 
 ### "Invalid request signature" error
+
 1. Verify `DISCORD_PUBLIC_KEY` is correct
 2. Check that the Interactions URL is set correctly in Discord
 
 ### Database connection errors
+
 1. Ensure you're using Prisma Accelerate URL, not direct PostgreSQL URL
 2. Verify the API key is valid
 3. Check that your database is accessible
 
 ### Google Drive upload fails
+
 1. Verify service account has access to the folder
 2. Check that the private key is properly formatted (with `\n` escapes)
 3. Ensure Drive API is enabled in Google Cloud Console

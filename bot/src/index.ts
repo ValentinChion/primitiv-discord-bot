@@ -47,17 +47,19 @@ export default {
     }
 
     // Discord interactions endpoint
-    if (request.method === "POST" && url.pathname === "/") {
+    if (request.method === "POST") {
       try {
         const signature = request.headers.get("x-signature-ed25519");
         const timestamp = request.headers.get("x-signature-timestamp");
         const body = await request.text();
 
+        console.log(body, signature, timestamp, env.DISCORD_PUBLIC_KEY);
+
         // Verify request signature
         const isValidRequest =
           signature &&
           timestamp &&
-          verifyKey(body, signature, timestamp, env.DISCORD_PUBLIC_KEY);
+          (await verifyKey(body, signature, timestamp, env.DISCORD_PUBLIC_KEY));
 
         if (!isValidRequest) {
           console.error("Invalid request signature");
