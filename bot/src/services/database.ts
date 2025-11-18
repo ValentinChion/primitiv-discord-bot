@@ -3,8 +3,8 @@
  * Uses Prisma with Accelerate for connection pooling on Cloudflare Workers
  */
 
-import { PrismaClient } from '@prisma/client';
-import { withAccelerate } from '@prisma/extension-accelerate';
+import { PrismaClient } from "@prisma/client/edge";
+import { withAccelerate } from "@prisma/extension-accelerate";
 
 // Singleton pattern for Prisma client
 let prisma: ReturnType<typeof createPrismaClient> | null = null;
@@ -36,8 +36,8 @@ export class DemandeService {
         userId,
         montant,
         description,
-        type: 'DEMANDE',
-        statut: 'PENDING',
+        type: "DEMANDE",
+        statut: "PENDING",
       },
     });
   }
@@ -45,7 +45,7 @@ export class DemandeService {
   static async validateDemande(
     prisma: ReturnType<typeof createPrismaClient>,
     id: number,
-    statut: 'PENDING' | 'DENIED' | 'VALIDATED'
+    statut: "PENDING" | "DENIED" | "VALIDATED"
   ) {
     return await prisma.demande.update({
       where: { id },
@@ -70,8 +70,8 @@ export class DemandeService {
     await prisma.demande.update({
       where: { id: demandeId },
       data: {
-        type: 'PAIEMENT',
-        statut: 'VALIDATED',
+        type: "PAIEMENT",
+        statut: "VALIDATED",
         paiementId: paiement.id,
         factureUrl,
       },
@@ -92,7 +92,7 @@ export class DemandeService {
     });
 
     if (!originalDemande) {
-      throw new Error('Demande originale non trouvée');
+      throw new Error("Demande originale non trouvée");
     }
 
     return await prisma.demande.create({
@@ -101,8 +101,8 @@ export class DemandeService {
         userId,
         montant,
         description: `Remboursement pour: ${originalDemande.description}`,
-        type: 'REMBOURSEMENT',
-        statut: 'PENDING',
+        type: "REMBOURSEMENT",
+        statut: "PENDING",
         factureUrl,
       },
     });

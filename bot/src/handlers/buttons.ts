@@ -2,9 +2,12 @@
  * Handler for button interactions (Accept/Deny requests)
  */
 
-import { InteractionResponseType, InteractionResponseFlags, MessageComponentTypes } from 'discord-interactions';
-import { DemandeService } from '../services/database.js';
-import type { Env } from '../types.js';
+import {
+  InteractionResponseType,
+  InteractionResponseFlags,
+} from "discord-interactions";
+import { DemandeService } from "../services/database.js";
+import type { Env } from "../types.js";
 
 export async function handleButtonInteraction(
   interaction: any,
@@ -19,17 +22,17 @@ export async function handleButtonInteraction(
       JSON.stringify({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: '❌ Seul le trésorier peut accepter ou refuser des demandes',
+          content: "❌ Seul le trésorier peut accepter ou refuser des demandes",
           flags: InteractionResponseFlags.EPHEMERAL,
         },
       }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { "Content-Type": "application/json" } }
     );
   }
 
-  if (customId.startsWith('accept_')) {
+  if (customId.startsWith("accept_")) {
     return handleAcceptButton(interaction, env, customId);
-  } else if (customId.startsWith('deny_')) {
+  } else if (customId.startsWith("deny_")) {
     return handleDenyButton(interaction, env, customId);
   }
 
@@ -37,11 +40,11 @@ export async function handleButtonInteraction(
     JSON.stringify({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
-        content: '❌ Action non reconnue',
+        content: "❌ Action non reconnue",
         flags: InteractionResponseFlags.EPHEMERAL,
       },
     }),
-    { headers: { 'Content-Type': 'application/json' } }
+    { headers: { "Content-Type": "application/json" } }
   );
 }
 
@@ -50,21 +53,22 @@ async function handleAcceptButton(
   env: Env,
   customId: string
 ): Promise<Response> {
-  const demandeId = parseInt(customId.replace('accept_', ''));
+  const demandeId = parseInt(customId.replace("accept_", ""));
 
   try {
-    const { getPrismaClient } = await import('../services/database.js');
+    const { getPrismaClient } = await import("../services/database.js");
     const prisma = getPrismaClient(env.DATABASE_URL);
 
     // Update request to PAIEMENT type (approved for payment)
     const demande = await prisma.demande.update({
       where: { id: demandeId },
-      data: { type: 'PAIEMENT' },
+      data: { type: "PAIEMENT" },
     });
 
     // Send DM to requester
     const dmContent = {
-      content: `✅ **Votre demande a été acceptée!**\n\n` +
+      content:
+        `✅ **Votre demande a été acceptée!**\n\n` +
         `**Nom:** ${demande.name}\n` +
         `**Montant:** ${demande.montant}€\n\n` +
         `Vous pouvez maintenant:\n` +
@@ -73,9 +77,9 @@ async function handleAcceptButton(
     };
 
     await fetch(`https://discord.com/api/v10/users/@me/channels`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bot ${env.DISCORD_TOKEN}`,
       },
       body: JSON.stringify({ recipient_id: demande.userId }),
@@ -83,9 +87,9 @@ async function handleAcceptButton(
       .then((res) => res.json())
       .then((channel: any) =>
         fetch(`https://discord.com/api/v10/channels/${channel.id}/messages`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bot ${env.DISCORD_TOKEN}`,
           },
           body: JSON.stringify(dmContent),
@@ -97,23 +101,23 @@ async function handleAcceptButton(
       JSON.stringify({
         type: InteractionResponseType.UPDATE_MESSAGE,
         data: {
-          content: interaction.message.content + '\n\n✅ **ACCEPTÉE**',
+          content: interaction.message.content + "\n\n✅ **ACCEPTÉE**",
           components: [], // Remove buttons
         },
       }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error('Error accepting request:', error);
+    console.error("Error accepting request:", error);
     return new Response(
       JSON.stringify({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: '❌ Une erreur est survenue',
+          content: "❌ Une erreur est survenue",
           flags: InteractionResponseFlags.EPHEMERAL,
         },
       }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { "Content-Type": "application/json" } }
     );
   }
 }
@@ -123,27 +127,32 @@ async function handleDenyButton(
   env: Env,
   customId: string
 ): Promise<Response> {
-  const demandeId = parseInt(customId.replace('deny_', ''));
+  const demandeId = parseInt(customId.replace("deny_", ""));
 
   try {
-    const { getPrismaClient } = await import('../services/database.js');
+    const { getPrismaClient } = await import("../services/database.js");
     const prisma = getPrismaClient(env.DATABASE_URL);
 
     // Update request status to DENIED
-    const demande = await DemandeService.validateDemande(prisma, demandeId, 'DENIED');
+    const demande = await DemandeService.validateDemande(
+      prisma,
+      demandeId,
+      "DENIED"
+    );
 
     // Send DM to requester
     const dmContent = {
-      content: `❌ **Votre demande a été refusée**\n\n` +
+      content:
+        `❌ **Votre demande a été refusée**\n\n` +
         `**Nom:** ${demande.name}\n` +
         `**Montant:** ${demande.montant}€\n\n` +
         `Contactez le trésorier pour plus d'informations.`,
     };
 
     await fetch(`https://discord.com/api/v10/users/@me/channels`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bot ${env.DISCORD_TOKEN}`,
       },
       body: JSON.stringify({ recipient_id: demande.userId }),
@@ -151,9 +160,9 @@ async function handleDenyButton(
       .then((res) => res.json())
       .then((channel: any) =>
         fetch(`https://discord.com/api/v10/channels/${channel.id}/messages`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bot ${env.DISCORD_TOKEN}`,
           },
           body: JSON.stringify(dmContent),
@@ -165,23 +174,23 @@ async function handleDenyButton(
       JSON.stringify({
         type: InteractionResponseType.UPDATE_MESSAGE,
         data: {
-          content: interaction.message.content + '\n\n❌ **REFUSÉE**',
+          content: interaction.message.content + "\n\n❌ **REFUSÉE**",
           components: [], // Remove buttons
         },
       }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error('Error denying request:', error);
+    console.error("Error denying request:", error);
     return new Response(
       JSON.stringify({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: '❌ Une erreur est survenue',
+          content: "❌ Une erreur est survenue",
           flags: InteractionResponseFlags.EPHEMERAL,
         },
       }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { "Content-Type": "application/json" } }
     );
   }
 }
