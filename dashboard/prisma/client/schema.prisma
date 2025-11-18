@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // When using Prisma Accelerate, uncomment the following line:
+  // directUrl = env("DIRECT_DATABASE_URL")
+}
+
+enum Statut {
+  PENDING
+  DENIED
+  VALIDATED
+}
+
+enum Type {
+  DEMANDE
+  PAIEMENT
+  REMBOURSEMENT
+}
+
+model Demande {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  userId      String
+  montant     Float
+  description String
+  type        Type
+  statut      Statut    @default(PENDING)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  factureUrl  String? // URL Google Drive de la facture
+  paiementId  Int? // ID de la demande de paiement associée (si type=REMBOURSEMENT)
+  Paiement    Paiement? @relation(fields: [paiementId], references: [id])
+
+  // Index pour les recherches rapides
+  @@index([name])
+  @@index([userId])
+}
+
+model Paiement {
+  id         Int       @id @default(autoincrement())
+  demandeId  Int       @unique
+  Demande    Demande[]
+  montant    Float
+  factureUrl String? // URL Google Drive de la facture
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
