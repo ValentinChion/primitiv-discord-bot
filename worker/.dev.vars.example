@@ -1,0 +1,20 @@
+# Discord Bot Configuration
+DISCORD_TOKEN=your_discord_bot_token_here
+DISCORD_PUBLIC_KEY=your_discord_public_key_here
+DISCORD_APPLICATION_ID=your_discord_application_id_here
+TRESORIER_ID=discord_user_id_of_treasurer
+
+# Database Configuration
+# For Cloudflare Workers, you MUST use Prisma Accelerate
+# Get your connection string from: https://www.prisma.io/data-platform/accelerate
+# Format: prisma://accelerate.prisma-data.net/?api_key=your_accelerate_api_key
+DATABASE_URL=prisma://accelerate.prisma-data.net/?api_key=your_api_key_here
+
+# Optional: Direct database URL (for migrations only)
+# DIRECT_DATABASE_URL=postgresql://user:password@host:port/database
+
+# Google Drive Configuration
+GOOGLE_DRIVE_FOLDER_ID=your_google_drive_folder_id
+GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account@project.iam.gserviceaccount.com
+# Important: For the private key, replace newlines with \n in the actual value
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour\nPrivate\nKey\nHere\n-----END PRIVATE KEY-----\n"
