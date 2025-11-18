@@ -6,6 +6,8 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // When using Prisma Accelerate, uncomment the following line:
+  // directUrl = env("DIRECT_DATABASE_URL")
 }
 
 enum Statut {
