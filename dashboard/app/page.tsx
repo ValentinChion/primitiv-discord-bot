@@ -1,27 +1,57 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <main className="flex flex-col items-center gap-8 text-center px-4">
+    <div className="container mx-auto p-6">
+      <div className="flex flex-col items-center gap-8 text-center max-w-3xl mx-auto mt-16">
         <h1 className="text-4xl font-bold tracking-tight">
           PRIMITIV: Suivis Financier
         </h1>
-        <p className="text-muted-foreground text-lg max-w-md">
+        <p className="text-muted-foreground text-lg">
           Dashboard de suivi des demandes et paiements financiers
         </p>
-        <div className="flex flex-col gap-4 mt-8 text-sm text-muted-foreground">
-          <p>
-            Le projet est configuré avec Next.js, TypeScript, Tailwind CSS, Shadcn UI et Prisma.
-          </p>
-          <p>
-            Vous pouvez maintenant ajouter les composants Shadcn et créer les pages pour:
-          </p>
-          <ul className="list-disc list-inside mt-2">
-            <li>Suivre et mettre à jour les demandes</li>
-            <li>Suivre les paiements</li>
-            <li>Navigation entre les pages</li>
-          </ul>
+
+        <div className="grid md:grid-cols-2 gap-6 w-full mt-8">
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle>Demandes</CardTitle>
+              <CardDescription>
+                Suivre et gérer toutes les demandes financières avec mise à jour des statuts
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/demandes">
+                <Button className="w-full">
+                  Voir les demandes
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle>Paiements</CardTitle>
+              <CardDescription>
+                Consulter l'historique de tous les paiements effectués
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/paiements">
+                <Button className="w-full">
+                  Voir les paiements
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
-      </main>
+
+        <div className="mt-12 text-sm text-muted-foreground space-y-2">
+          <p className="font-medium">Technologies utilisées:</p>
+          <p>Next.js 16 • TypeScript • Tailwind CSS • Shadcn UI • Prisma • PostgreSQL</p>
+        </div>
+      </div>
     </div>
   );
 }
