@@ -8,6 +8,7 @@ export interface Env {
   DISCORD_PUBLIC_KEY: string;
   DISCORD_APPLICATION_ID: string;
   TRESORIER_ID: string;
+  GUILD_ID?: string; // Optional: Discord server ID for fetching channels/messages
 
   // Database
   DATABASE_URL: string;
@@ -16,4 +17,7 @@ export interface Env {
   GOOGLE_DRIVE_FOLDER_ID: string;
   GOOGLE_SERVICE_ACCOUNT_EMAIL: string;
   GOOGLE_PRIVATE_KEY: string;
+
+  // Claude API
+  ANTHROPIC_API_KEY?: string; // Optional: For AI-powered features
 }

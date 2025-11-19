@@ -8,6 +8,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "register": "tsx src/register.ts",
+    "test:generate-report": "tsx src/scripts/generate-report.ts",
+    "test:categories": "tsx src/scripts/list-categories.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "cf-typegen": "wrangler types"
@@ -23,6 +25,7 @@
   "dependencies": {
     "@prisma/client": "^6.19.0",
     "@prisma/extension-accelerate": "^1.2.1",
+    "chalk": "^5.6.2",
     "discord-interactions": "^4.1.0",
     "discord.js": "^14.25.0",
     "dotenv": "^16.3.1",
