@@ -10,6 +10,7 @@
     "register": "tsx src/register.ts",
     "test:daily-messages": "tsx src/scripts/daily-messages.ts",
     "test:categories": "tsx src/scripts/list-categories.ts",
+    "test:claude-api": "tsx src/scripts/test-claude-api.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "cf-typegen": "wrangler types"

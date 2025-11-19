@@ -17,4 +17,7 @@ export interface Env {
   GOOGLE_DRIVE_FOLDER_ID: string;
   GOOGLE_SERVICE_ACCOUNT_EMAIL: string;
   GOOGLE_PRIVATE_KEY: string;
+
+  // Claude API
+  ANTHROPIC_API_KEY?: string; // Optional: For AI-powered features
 }
