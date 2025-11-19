@@ -3,8 +3,10 @@
  * Provides functionality to retrieve all messages from all channels for a specific day
  */
 
-import chalk from 'chalk';
-import type { Env } from '../types.js';
+import chalk from "chalk";
+import type { Env } from "../types.js";
+
+const CATEGORIES_EXCLUDE = ["994894044570329099"];
 
 /**
  * Represents a Discord message with user information
@@ -27,6 +29,7 @@ export interface DailyChannelMessages {
  */
 interface DiscordChannel {
   id: string;
+  parent_id?: string;
   name: string;
   type: number;
 }
@@ -65,22 +68,30 @@ interface DiscordGuildMember {
 /**
  * Fetches all text channels from a guild
  */
-async function fetchGuildChannels(guildId: string, token: string): Promise<DiscordChannel[]> {
-  const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/channels`, {
-    headers: {
-      Authorization: `Bot ${token}`,
-    },
-  });
+async function fetchGuildChannels(
+  guildId: string,
+  token: string
+): Promise<DiscordChannel[]> {
+  const response = await fetch(
+    `https://discord.com/api/v10/guilds/${guildId}/channels`,
+    {
+      headers: {
+        Authorization: `Bot ${token}`,
+      },
+    }
+  );
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch channels: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch channels: ${response.status} ${response.statusText}`
+    );
   }
 
-  const channels = await response.json() as DiscordChannel[];
+  const channels = (await response.json()) as DiscordChannel[];
 
   // Filter for text channels (type 0) and announcement channels (type 5)
   // Excludes voice channels (type 2), categories (type 4), etc.
-  return channels.filter(channel => channel.type === 0 || channel.type === 5);
+  return channels.filter((channel) => channel.type === 0 || channel.type === 5);
 }
 
 /**
@@ -113,13 +124,17 @@ async function fetchChannelMessages(
     if (!response.ok) {
       // If we get a 403, the bot likely doesn't have permission to read this channel
       if (response.status === 403) {
-        console.log(chalk.yellow(`⚠️  No permission to read channel ${channelId}`));
+        console.log(
+          chalk.yellow(`⚠️  No permission to read channel ${channelId}`)
+        );
         break;
       }
-      throw new Error(`Failed to fetch messages: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch messages: ${response.status} ${response.statusText}`
+      );
     }
 
-    const batch = await response.json() as DiscordMessage[];
+    const batch = (await response.json()) as DiscordMessage[];
 
     if (batch.length === 0) {
       hasMore = false;
@@ -146,7 +161,7 @@ async function fetchChannelMessages(
     lastMessageId = batch[batch.length - 1].id;
 
     // Discord rate limiting: wait a bit between requests
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   return messages;
@@ -174,7 +189,7 @@ async function fetchGuildMember(
       return null;
     }
 
-    return await response.json() as DiscordGuildMember;
+    return (await response.json()) as DiscordGuildMember;
   } catch (error) {
     console.log(chalk.red(`❌ Failed to fetch member ${userId}:`), error);
     return null;
@@ -186,7 +201,7 @@ async function fetchGuildMember(
  */
 async function formatUserName(
   guildId: string,
-  author: DiscordMessage['author'],
+  author: DiscordMessage["author"],
   token: string
 ): Promise<string> {
   // Try to get guild member info for nickname/display name
@@ -246,15 +261,35 @@ export async function getDailyChannelMessages(
   endOfDay.setUTCHours(23, 59, 59, 999);
   endOfDay.setTime(endOfDay.getTime() + 1); // Add 1ms to get to start of next day
 
-  console.log(chalk.cyan(`\n🔍 Fetching messages for ${chalk.bold(startOfDay.toISOString())} to ${chalk.bold(endOfDay.toISOString())}`));
+  console.log(
+    chalk.cyan(
+      `\n🔍 Fetching messages for ${chalk.bold(
+        startOfDay.toISOString()
+      )} to ${chalk.bold(endOfDay.toISOString())}`
+    )
+  );
 
   // Step 1: Fetch all text channels
   const channels = await fetchGuildChannels(guildId, env.DISCORD_TOKEN);
-  console.log(chalk.green(`✓ Found ${chalk.bold(channels.length)} text channels`));
+  console.log(
+    chalk.green(`✓ Found ${chalk.bold(channels.length)} text channels`)
+  );
 
   // Step 2: Fetch messages from each channel
   for (const channel of channels) {
-    console.log(chalk.blue(`  📥 Fetching messages from ${chalk.bold('#' + channel.name)}...`));
+    if (channel.parent_id && CATEGORIES_EXCLUDE.includes(channel.parent_id)) {
+      console.log(
+        chalk.gray(`ℹ️ Skipping #${channel.name} (excluded category)`)
+      );
+      continue;
+      continue;
+    }
+
+    console.log(
+      chalk.blue(
+        `  📥 Fetching messages from ${chalk.bold("#" + channel.name)}...`
+      )
+    );
 
     try {
       const messages = await fetchChannelMessages(
@@ -265,22 +300,34 @@ export async function getDailyChannelMessages(
       );
 
       if (messages.length === 0) {
-        console.log(chalk.gray(`     ℹ️  No messages found in #${channel.name}`));
+        console.log(
+          chalk.gray(`     ℹ️  No messages found in #${channel.name}`)
+        );
         continue;
       }
 
-      console.log(chalk.green(`     ✓ Found ${chalk.bold(messages.length)} messages in ${chalk.bold('#' + channel.name)}`));
+      console.log(
+        chalk.green(
+          `     ✓ Found ${chalk.bold(messages.length)} messages in ${chalk.bold(
+            "#" + channel.name
+          )}`
+        )
+      );
 
       // Step 3: Format messages
       const formattedMessages: DailyMessage[] = [];
 
       for (const message of messages) {
         // Skip empty messages
-        if (!message.content || message.content.trim() === '') {
+        if (!message.content || message.content.trim() === "") {
           continue;
         }
 
-        const userName = await formatUserName(guildId, message.author, env.DISCORD_TOKEN);
+        const userName = await formatUserName(
+          guildId,
+          message.author,
+          env.DISCORD_TOKEN
+        );
 
         formattedMessages.push({
           date: message.timestamp,
@@ -294,7 +341,10 @@ export async function getDailyChannelMessages(
         result[channel.name] = formattedMessages;
       }
     } catch (error) {
-      console.log(chalk.red(`     ❌ Error fetching messages from #${channel.name}:`), error);
+      console.log(
+        chalk.red(`     ❌ Error fetching messages from #${channel.name}:`),
+        error
+      );
       // Continue with other channels even if one fails
     }
   }
@@ -324,7 +374,9 @@ export async function getChannelMessagesByDateString(
 ): Promise<DailyChannelMessages> {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) {
-    throw new Error(`Invalid date string: ${dateString}. Expected format: YYYY-MM-DD`);
+    throw new Error(
+      `Invalid date string: ${dateString}. Expected format: YYYY-MM-DD`
+    );
   }
   return getDailyChannelMessages(guildId, date, env);
 }
