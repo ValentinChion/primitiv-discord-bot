@@ -3,6 +3,7 @@
  * Provides functionality to retrieve all messages from all channels for a specific day
  */
 
+import chalk from 'chalk';
 import type { Env } from '../types.js';
 
 /**
@@ -112,7 +113,7 @@ async function fetchChannelMessages(
     if (!response.ok) {
       // If we get a 403, the bot likely doesn't have permission to read this channel
       if (response.status === 403) {
-        console.warn(`No permission to read channel ${channelId}`);
+        console.log(chalk.yellow(`⚠️  No permission to read channel ${channelId}`));
         break;
       }
       throw new Error(`Failed to fetch messages: ${response.status} ${response.statusText}`);
@@ -175,7 +176,7 @@ async function fetchGuildMember(
 
     return await response.json() as DiscordGuildMember;
   } catch (error) {
-    console.error(`Failed to fetch member ${userId}:`, error);
+    console.log(chalk.red(`❌ Failed to fetch member ${userId}:`), error);
     return null;
   }
 }
@@ -245,15 +246,15 @@ export async function getDailyChannelMessages(
   endOfDay.setUTCHours(23, 59, 59, 999);
   endOfDay.setTime(endOfDay.getTime() + 1); // Add 1ms to get to start of next day
 
-  console.log(`Fetching messages for ${startOfDay.toISOString()} to ${endOfDay.toISOString()}`);
+  console.log(chalk.cyan(`\n🔍 Fetching messages for ${chalk.bold(startOfDay.toISOString())} to ${chalk.bold(endOfDay.toISOString())}`));
 
   // Step 1: Fetch all text channels
   const channels = await fetchGuildChannels(guildId, env.DISCORD_TOKEN);
-  console.log(`Found ${channels.length} text channels`);
+  console.log(chalk.green(`✓ Found ${chalk.bold(channels.length)} text channels`));
 
   // Step 2: Fetch messages from each channel
   for (const channel of channels) {
-    console.log(`Fetching messages from #${channel.name}...`);
+    console.log(chalk.blue(`  📥 Fetching messages from ${chalk.bold('#' + channel.name)}...`));
 
     try {
       const messages = await fetchChannelMessages(
@@ -264,11 +265,11 @@ export async function getDailyChannelMessages(
       );
 
       if (messages.length === 0) {
-        console.log(`No messages found in #${channel.name}`);
+        console.log(chalk.gray(`     ℹ️  No messages found in #${channel.name}`));
         continue;
       }
 
-      console.log(`Found ${messages.length} messages in #${channel.name}`);
+      console.log(chalk.green(`     ✓ Found ${chalk.bold(messages.length)} messages in ${chalk.bold('#' + channel.name)}`));
 
       // Step 3: Format messages
       const formattedMessages: DailyMessage[] = [];
@@ -293,7 +294,7 @@ export async function getDailyChannelMessages(
         result[channel.name] = formattedMessages;
       }
     } catch (error) {
-      console.error(`Error fetching messages from #${channel.name}:`, error);
+      console.log(chalk.red(`     ❌ Error fetching messages from #${channel.name}:`), error);
       // Continue with other channels even if one fails
     }
   }
