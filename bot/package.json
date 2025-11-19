@@ -9,7 +9,7 @@
     "deploy": "wrangler deploy",
     "register": "tsx src/register.ts",
     "test:daily-messages": "tsx src/scripts/daily-messages.ts",
-    "list:categories": "tsx src/scripts/list-categories.ts",
+    "test:categories": "tsx src/scripts/list-categories.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "cf-typegen": "wrangler types"

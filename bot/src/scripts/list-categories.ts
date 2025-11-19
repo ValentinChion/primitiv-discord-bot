@@ -20,7 +20,9 @@ async function fetchAllCategories() {
     process.exit(1);
   }
 
-  console.log(chalk.cyan.bold("\n🔍 Fetching all channels and categories...\n"));
+  console.log(
+    chalk.cyan.bold("\n🔍 Fetching all channels and categories...\n")
+  );
 
   try {
     const response = await fetch(
@@ -33,17 +35,27 @@ async function fetchAllCategories() {
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch channels: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch channels: ${response.status} ${response.statusText}`
+      );
     }
 
     const channels = (await response.json()) as DiscordChannel[];
 
     // Separate categories and text channels
-    const categories = channels.filter((ch) => ch.type === 4).sort((a, b) => (a.position || 0) - (b.position || 0));
-    const textChannels = channels.filter((ch) => ch.type === 0 || ch.type === 5);
+    const categories = channels
+      .filter((ch) => ch.type === 4)
+      .sort((a, b) => (a.position || 0) - (b.position || 0));
+    const textChannels = channels.filter(
+      (ch) => ch.type === 0 || ch.type === 5
+    );
 
-    console.log(chalk.green(`✓ Found ${chalk.bold(categories.length)} categories`));
-    console.log(chalk.green(`✓ Found ${chalk.bold(textChannels.length)} text channels\n`));
+    console.log(
+      chalk.green(`✓ Found ${chalk.bold(categories.length)} categories`)
+    );
+    console.log(
+      chalk.green(`✓ Found ${chalk.bold(textChannels.length)} text channels\n`)
+    );
 
     console.log(chalk.cyan.bold("=".repeat(60)));
     console.log(chalk.cyan.bold("📁 CATEGORIES & CHANNELS"));
@@ -89,7 +101,8 @@ async function fetchAllCategories() {
     // Show a simple list of category names
     console.log(chalk.white("Category names (copy these for filtering):"));
     categories.forEach((cat) => {
-      console.log(chalk.blue(`  - "${cat.name}"`));
+      console.log(chalk.blue(`  - ${cat.name}`));
+      console.log(chalk.blue(`    ID: ${cat.id}`));
     });
 
     console.log(chalk.cyan.bold("\n" + "=".repeat(60) + "\n"));
