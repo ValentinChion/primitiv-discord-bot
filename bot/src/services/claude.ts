@@ -149,20 +149,14 @@ export async function callClaude(
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(
-        `Claude API error (${response.status}): ${errorText}`
-      );
+      throw new Error(`Claude API error (${response.status}): ${errorText}`);
     }
 
     const data = (await response.json()) as AnthropicAPIResponse;
 
     console.log(chalk.green(`✓ Claude API response received`));
-    console.log(
-      chalk.gray(`   Input tokens: ${data.usage.input_tokens}`)
-    );
-    console.log(
-      chalk.gray(`   Output tokens: ${data.usage.output_tokens}`)
-    );
+    console.log(chalk.gray(`   Input tokens: ${data.usage.input_tokens}`));
+    console.log(chalk.gray(`   Output tokens: ${data.usage.output_tokens}`));
 
     // Extract text content from response
     const content = data.content
@@ -224,9 +218,7 @@ export async function callClaudeForJSON<T = any>(
         `⚠️  Failed to parse JSON response. Raw content:\n${response.content}`
       )
     );
-    throw new Error(
-      `Failed to parse Claude response as JSON: ${error}`
-    );
+    throw new Error(`Failed to parse Claude response as JSON: ${error}`);
   }
 }
 
@@ -303,9 +295,7 @@ export async function callClaudeStreaming(
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(
-        `Claude API error (${response.status}): ${errorText}`
-      );
+      throw new Error(`Claude API error (${response.status}): ${errorText}`);
     }
 
     let fullText = "";
