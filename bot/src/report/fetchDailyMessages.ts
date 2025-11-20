@@ -2,6 +2,7 @@ import chalk from "chalk";
 import { DailyMessage, getDailyChannelMessages } from "../services/messages.js";
 import type { Env } from "../types.js";
 import { callClaude } from "../services/claude.js";
+import { SurveyInformation, getChannelSurvey } from "../services/surveys.js";
 
 interface DailyReport {
   date: string;
@@ -9,9 +10,47 @@ interface DailyReport {
   totalMessages: number;
   messagesByChannel: Record<
     string,
-    { total: number; messages: DailyMessage[] }
+    { total: number; messages: DailyMessage[]; survey?: SurveyInformation }
   >;
   activeUsers: string[];
+}
+
+/**
+ * Discord API channel type
+ */
+interface DiscordChannel {
+  id: string;
+  parent_id?: string;
+  name: string;
+  type: number;
+}
+
+/**
+ * Fetches all text channels from a guild
+ */
+async function fetchGuildChannels(
+  guildId: string,
+  token: string
+): Promise<DiscordChannel[]> {
+  const response = await fetch(
+    `https://discord.com/api/v10/guilds/${guildId}/channels`,
+    {
+      headers: {
+        Authorization: `Bot ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch channels: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const channels = (await response.json()) as DiscordChannel[];
+
+  // Filter for text channels (type 0) and announcement channels (type 5)
+  return channels.filter((channel) => channel.type === 0 || channel.type === 5);
 }
 
 /**
@@ -28,6 +67,10 @@ export async function fetchDailyMessagesReport(
 
   const messages = await getDailyChannelMessages(guildId, yesterday, env);
 
+  // Fetch channels to get survey data
+  console.log(chalk.cyan("\n🔍 Fetching survey data for channels..."));
+  const channels = await fetchGuildChannels(guildId, env.DISCORD_TOKEN);
+
   // Generate statistics
   const report = {
     date: yesterday.toISOString().split("T")[0],
@@ -35,7 +78,7 @@ export async function fetchDailyMessagesReport(
     totalMessages: 0,
     messagesByChannel: {} as Record<
       string,
-      { total: number; messages: DailyMessage[] }
+      { total: number; messages: DailyMessage[]; survey?: SurveyInformation }
     >,
     activeUsers: new Set<string>(),
   };
@@ -51,6 +94,58 @@ export async function fetchDailyMessagesReport(
     channelMessages.forEach((msg) => report.activeUsers.add(msg.user));
   }
 
+  // Fetch survey data for each channel (ongoing or closed yesterday)
+  for (const channel of channels) {
+    // Check if this channel has messages in the report or should be included anyway
+    try {
+      // Fetch survey data (ongoing or closed in the last 24 hours)
+      const survey = await getChannelSurvey(
+        channel.id,
+        env.DISCORD_TOKEN,
+        24 // Look back 24 hours for closed surveys
+      );
+
+      if (survey) {
+        console.log(
+          chalk.green(
+            `  ✓ Found survey in ${chalk.bold("#" + channel.name)}: ${
+              survey.isClosed ? "Closed" : "Ongoing"
+            }`
+          )
+        );
+
+        // If channel doesn't exist in report yet (no messages), add it
+        if (!report.messagesByChannel[channel.name]) {
+          report.messagesByChannel[channel.name] = {
+            messages: [],
+            total: 0,
+            survey,
+          };
+        } else {
+          // Add survey to existing channel data
+          report.messagesByChannel[channel.name].survey = survey;
+        }
+      }
+    } catch (error) {
+      console.log(
+        chalk.yellow(
+          `  ⚠️  Error fetching survey for #${channel.name}:`
+        ),
+        error
+      );
+      // Continue with other channels
+    }
+  }
+
+  // Count surveys
+  const surveyCount = Object.values(report.messagesByChannel).filter(
+    (ch) => ch.survey
+  ).length;
+  const ongoingSurveys = Object.values(report.messagesByChannel).filter(
+    (ch) => ch.survey && !ch.survey.isClosed
+  ).length;
+  const closedSurveys = surveyCount - ongoingSurveys;
+
   console.log(chalk.cyan.bold("\n" + "=".repeat(50)));
   console.log(chalk.cyan.bold("📊 Daily Activity Report"));
   console.log(chalk.cyan.bold("=".repeat(50)));
@@ -64,16 +159,32 @@ export async function fetchDailyMessagesReport(
   console.log(
     chalk.magenta(`👥 Active Users: ${chalk.bold(report.activeUsers.size)}`)
   );
+
+  if (surveyCount > 0) {
+    console.log(
+      chalk.yellow(
+        `📋 Surveys: ${chalk.bold(surveyCount)} total (${ongoingSurveys} ongoing, ${closedSurveys} closed)`
+      )
+    );
+  }
+
   console.log(chalk.cyan("\n" + "─".repeat(50)));
   console.log(chalk.yellow.bold("Messages per channel:"));
   console.log(chalk.cyan("─".repeat(50)));
 
   Object.entries(report.messagesByChannel)
-    .sort(([, a], [, b]) => b - a)
-    .forEach(([channel, count]) => {
+    .sort(([, a], [, b]) => b.total - a.total)
+    .forEach(([channel, data]) => {
+      const surveyIndicator = data.survey
+        ? data.survey.isClosed
+          ? chalk.gray(" [Survey: Closed]")
+          : chalk.green(" [Survey: Ongoing]")
+        : "";
       console.log(
         chalk.white(
-          `  ${chalk.blue("#" + channel)}: ${chalk.bold.green(count)}`
+          `  ${chalk.blue("#" + channel)}: ${chalk.bold.green(
+            data.total
+          )}${surveyIndicator}`
         )
       );
     });
