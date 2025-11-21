@@ -4,6 +4,7 @@ import {
 } from "../report/fetchDailyMessages";
 
 import { config } from "dotenv";
+import { sendDiscordMessage } from "../services/sendMessage";
 
 config({ path: ".dev.vars" });
 
@@ -22,9 +23,10 @@ const main = async () => {
 
   console.log(claudeResult);
 
-  // Send message to Discord if requested
   if (sendToDiscord) {
-    // TODO: Implement Discord message sending
+    claudeResult.map((message) => {
+      sendDiscordMessage("1441436717004624016", message);
+    });
   }
 };
 

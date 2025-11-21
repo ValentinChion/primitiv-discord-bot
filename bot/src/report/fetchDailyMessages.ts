@@ -114,7 +114,7 @@ export async function fetchDailyMessagesReport(
   };
 }
 
-export const analyzeReport = async (report: DailyReport) => {
+export const analyzeReport = async (report: DailyReport): Promise<string[]> => {
   console.log(chalk.cyan.bold("\n📊 Calling Claude to analyze report..."));
 
   const result = await callClaude(
@@ -144,7 +144,6 @@ export const analyzeReport = async (report: DailyReport) => {
 
     FORMAT INSTRUCTIONS:
     This should follow the format of a discord message since it will then be sent to the server.
-    You can use markdown to format the message.
 
     At the start of your message, you should mention the number of messages sent during the day.
 
@@ -157,7 +156,10 @@ export const analyzeReport = async (report: DailyReport) => {
     And in the continuation channel:
     - #other_channel: Suite de la discussion de #channel_name sur [topic] + [new developments]
     
-    The output MUST be an array of strings of 2000 characters max. You MUST only split between bullet points.
+    Your answer must be a valid JSON array of strings, my next action will be to use JSON.stringify() on it.
+    The summary must be splitted in array of max 2000 characters. You must split the summary between bullet points, not during a sentence.
+    You can use markdown to format the strings inside the array.
+    Do NOT add anything around the JSON array.
 
     SURVEYS:
     In the messages, there can be some ongoing / closed "survey" which is a discord poll, they are represented in the data as "message.survey".
@@ -178,4 +180,8 @@ export const analyzeReport = async (report: DailyReport) => {
 
   console.log(chalk.cyan.bold("\n📊 Report analysis result :"));
   console.log(chalk.white(result.content));
+
+  console.log(result);
+
+  return JSON.parse(result.content);
 };

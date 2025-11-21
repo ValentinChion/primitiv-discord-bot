@@ -48,8 +48,6 @@ export default {
         const timestamp = request.headers.get("x-signature-timestamp");
         const body = await request.text();
 
-        console.log(body, signature, timestamp, env.DISCORD_PUBLIC_KEY);
-
         // Verify request signature
         const isValidRequest =
           signature &&
