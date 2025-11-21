@@ -3,16 +3,11 @@
  * Handles Discord interactions via HTTP
  */
 
-import { Router } from "itty-router";
 import {
   InteractionType,
   InteractionResponseType,
   verifyKey,
 } from "discord-interactions";
-import { handleDemandeCommand } from "./handlers/demande.js";
-import { handleConfirmeCommand } from "./handlers/confirme.js";
-import { handleRemboursementCommand } from "./handlers/remboursement.js";
-import { handleButtonInteraction } from "./handlers/buttons.js";
 import type { Env } from "./types.js";
 
 // Lazy-load handlers to avoid importing Prisma at module load time
