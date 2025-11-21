@@ -260,8 +260,7 @@ async function formatUserName(
  */
 export async function getDailyChannelMessages(
   guildId: string,
-  targetDate: Date,
-  env: Env
+  targetDate: Date
 ): Promise<DailyChannelMessages> {
   const result: DailyChannelMessages = {};
 
@@ -282,7 +281,10 @@ export async function getDailyChannelMessages(
   );
 
   // Step 1: Fetch all text channels
-  const channels = await fetchGuildChannels(guildId, env.DISCORD_TOKEN);
+  const channels = await fetchGuildChannels(
+    guildId,
+    process.env.DISCORD_TOKEN!
+  );
   console.log(
     chalk.green(`✓ Found ${chalk.bold(channels.length)} text channels`)
   );
@@ -305,7 +307,7 @@ export async function getDailyChannelMessages(
     try {
       const messages = await fetchChannelMessages(
         channel.id,
-        env.DISCORD_TOKEN,
+        process.env.DISCORD_TOKEN!,
         startOfDay,
         endOfDay
       );
@@ -337,7 +339,7 @@ export async function getDailyChannelMessages(
         const userName = await formatUserName(
           guildId,
           message.author,
-          env.DISCORD_TOKEN
+          process.env.DISCORD_TOKEN!
         );
 
         formattedMessages.push({
@@ -389,5 +391,5 @@ export async function getChannelMessagesByDateString(
       `Invalid date string: ${dateString}. Expected format: YYYY-MM-DD`
     );
   }
-  return getDailyChannelMessages(guildId, date, env);
+  return getDailyChannelMessages(guildId, date);
 }

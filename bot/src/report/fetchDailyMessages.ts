@@ -19,7 +19,6 @@ interface DailyReport {
  * Generate daily report
  */
 export async function fetchDailyMessagesReport(
-  env: Env,
   guildId: string
 ): Promise<DailyReport> {
   console.log(chalk.cyan.bold("\n📊 Generating daily activity report..."));
@@ -27,7 +26,7 @@ export async function fetchDailyMessagesReport(
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
-  const messages = await getDailyChannelMessages(guildId, yesterday, env);
+  const messages = await getDailyChannelMessages(guildId, yesterday);
 
   // Generate statistics
   const report = {
