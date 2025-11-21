@@ -33,7 +33,7 @@ const main = async () => {
     activeUsers: ["Test", "Other User"],
   });
 
-  console.log(claudeResult);
+  console.log("CLAUDE FUNCTION RESULT", claudeResult);
 };
 
 main();

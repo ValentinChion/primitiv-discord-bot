@@ -24,9 +24,9 @@ const main = async () => {
   console.log(claudeResult);
 
   if (sendToDiscord) {
-    claudeResult.map((message) => {
-      sendDiscordMessage("1441436717004624016", message);
-    });
+    for (const message of claudeResult) {
+      await sendDiscordMessage("1441436717004624016", message);
+    }
   }
 };
 
