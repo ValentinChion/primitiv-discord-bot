@@ -35,7 +35,7 @@ interface PollResults {
 /**
  * Discord API poll structure
  */
-interface DiscordPoll {
+export interface DiscordPoll {
   question: {
     text: string;
   };
@@ -139,11 +139,7 @@ async function fetchChannelPolls(
       }
 
       // If message is within range and has a poll, add it
-      if (
-        messageDate >= startDate &&
-        messageDate < endDate &&
-        message.poll
-      ) {
+      if (messageDate >= startDate && messageDate < endDate && message.poll) {
         pollMessages.push(message);
       }
     }
@@ -161,7 +157,7 @@ async function fetchChannelPolls(
 /**
  * Formats a Discord poll message into SurveyInformation
  */
-function formatPollMessage(
+export function formatPollMessage(
   message: DiscordMessageWithPoll
 ): SurveyInformation | null {
   if (!message.poll) {
@@ -317,7 +313,9 @@ export async function getOngoingSurveys(
     }
   }
 
-  console.log(chalk.green(`✓ Found ${chalk.bold(surveys.length)} ongoing surveys`));
+  console.log(
+    chalk.green(`✓ Found ${chalk.bold(surveys.length)} ongoing surveys`)
+  );
   return surveys;
 }
 
@@ -342,7 +340,11 @@ export async function getRecentlyClosedSurveys(
   const surveys: Array<SurveyInformation & { channelName: string }> = [];
 
   for (const channel of channels) {
-    const survey = await getChannelSurvey(channel.id, env.DISCORD_TOKEN, hoursAgo);
+    const survey = await getChannelSurvey(
+      channel.id,
+      env.DISCORD_TOKEN,
+      hoursAgo
+    );
 
     if (survey && survey.isClosed && survey.closingDate) {
       const closingDate = new Date(survey.closingDate);

@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { DailyMessage, getDailyChannelMessages } from "../services/messages.js";
 import type { Env } from "../types.js";
 import { callClaude } from "../services/claude.js";
-import { SurveyInformation, getChannelSurvey } from "../services/surveys.js";
+import { SurveyInformation } from "../services/surveys.js";
 
 interface DailyReport {
   date: string;
@@ -13,44 +13,6 @@ interface DailyReport {
     { total: number; messages: DailyMessage[]; survey?: SurveyInformation }
   >;
   activeUsers: string[];
-}
-
-/**
- * Discord API channel type
- */
-interface DiscordChannel {
-  id: string;
-  parent_id?: string;
-  name: string;
-  type: number;
-}
-
-/**
- * Fetches all text channels from a guild
- */
-async function fetchGuildChannels(
-  guildId: string,
-  token: string
-): Promise<DiscordChannel[]> {
-  const response = await fetch(
-    `https://discord.com/api/v10/guilds/${guildId}/channels`,
-    {
-      headers: {
-        Authorization: `Bot ${token}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch channels: ${response.status} ${response.statusText}`
-    );
-  }
-
-  const channels = (await response.json()) as DiscordChannel[];
-
-  // Filter for text channels (type 0) and announcement channels (type 5)
-  return channels.filter((channel) => channel.type === 0 || channel.type === 5);
 }
 
 /**
@@ -66,10 +28,6 @@ export async function fetchDailyMessagesReport(
   yesterday.setDate(yesterday.getDate() - 1);
 
   const messages = await getDailyChannelMessages(guildId, yesterday, env);
-
-  // Fetch channels to get survey data
-  console.log(chalk.cyan("\n🔍 Fetching survey data for channels..."));
-  const channels = await fetchGuildChannels(guildId, env.DISCORD_TOKEN);
 
   // Generate statistics
   const report = {
@@ -92,49 +50,6 @@ export async function fetchDailyMessagesReport(
 
     // Track unique users
     channelMessages.forEach((msg) => report.activeUsers.add(msg.user));
-  }
-
-  // Fetch survey data for each channel (ongoing or closed yesterday)
-  for (const channel of channels) {
-    // Check if this channel has messages in the report or should be included anyway
-    try {
-      // Fetch survey data (ongoing or closed in the last 24 hours)
-      const survey = await getChannelSurvey(
-        channel.id,
-        env.DISCORD_TOKEN,
-        24 // Look back 24 hours for closed surveys
-      );
-
-      if (survey) {
-        console.log(
-          chalk.green(
-            `  ✓ Found survey in ${chalk.bold("#" + channel.name)}: ${
-              survey.isClosed ? "Closed" : "Ongoing"
-            }`
-          )
-        );
-
-        // If channel doesn't exist in report yet (no messages), add it
-        if (!report.messagesByChannel[channel.name]) {
-          report.messagesByChannel[channel.name] = {
-            messages: [],
-            total: 0,
-            survey,
-          };
-        } else {
-          // Add survey to existing channel data
-          report.messagesByChannel[channel.name].survey = survey;
-        }
-      }
-    } catch (error) {
-      console.log(
-        chalk.yellow(
-          `  ⚠️  Error fetching survey for #${channel.name}:`
-        ),
-        error
-      );
-      // Continue with other channels
-    }
   }
 
   // Count surveys
@@ -163,7 +78,9 @@ export async function fetchDailyMessagesReport(
   if (surveyCount > 0) {
     console.log(
       chalk.yellow(
-        `📋 Surveys: ${chalk.bold(surveyCount)} total (${ongoingSurveys} ongoing, ${closedSurveys} closed)`
+        `📋 Surveys: ${chalk.bold(
+          surveyCount
+        )} total (${ongoingSurveys} ongoing, ${closedSurveys} closed)`
       )
     );
   }
@@ -217,10 +134,15 @@ export const analyzeReport = async (report: DailyReport) => {
 
     This should follow the format of a discord message since it will then be sent to the server.
     You can use markdown to format the message.
-    The message length (without markdown) should be less than 300 characters. Try be as concise as possible.
+    
+    There should be one bullet point per channel with the following format : 
+    - #channel_name: summary of the activity in the channel (max 2/3 lines)
+    In the messages, there can be some ongoing / closed "survey" which is a discord pull, they are represented in the data as "message.survey". 
+    You MUST mention them in the summary of the channel.
+    If it's an ongoing survey, you MUST mention the closing date of the poll.
+    If it's a closed survey, you MUST mention the results of the poll.
 
-    At the end, you should add mentions of the most active channels, with the following format #channel_name (2 max) (Not added in the 300 characters limit)
-
+    Your tone should be like a newspaper recap of the day.
     You should answer in french only with the content of the message to be usable in my code.
     `,
     report,
