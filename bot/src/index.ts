@@ -9,6 +9,7 @@ import {
   verifyKey,
 } from "discord-interactions";
 import type { Env } from "./types.js";
+import { generateReport } from "./handlers/report.js";
 
 // Lazy-load handlers to avoid importing Prisma at module load time
 // This is important for the health check endpoint to work without database dependencies
@@ -40,9 +41,6 @@ export default {
     console.log("Scheduled event triggered:", event.cron);
 
     try {
-      // Import the report generation function
-      const { generateReport } = await import("./scripts/generate-report.js");
-
       // Run the report with sendToDiscord=true
       await generateReport(env, true);
 
