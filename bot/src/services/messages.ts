@@ -5,6 +5,11 @@
 
 import chalk from "chalk";
 import type { Env } from "../types.js";
+import {
+  DiscordPoll,
+  formatPollMessage,
+  SurveyInformation,
+} from "./surveys.js";
 
 const CATEGORIES_EXCLUDE = ["994894044570329099"];
 
@@ -46,6 +51,8 @@ interface DiscordMessage {
     username: string;
     global_name?: string;
   };
+  poll?: DiscordPoll;
+  survey?: SurveyInformation;
 }
 
 /**
@@ -153,6 +160,11 @@ async function fetchChannelMessages(
 
       // If message is within our range, add it
       if (messageDate >= startDate && messageDate < endDate) {
+        if (message?.poll) {
+          const survey = formatPollMessage(message);
+          message.poll = undefined;
+          message.survey = survey;
+        }
         messages.push(message);
       }
     }
@@ -271,6 +283,7 @@ export async function getDailyChannelMessages(
 
   // Step 1: Fetch all text channels
   const channels = await fetchGuildChannels(guildId, env.DISCORD_TOKEN);
+  console.log(channels);
   console.log(
     chalk.green(`✓ Found ${chalk.bold(channels.length)} text channels`)
   );
@@ -281,7 +294,6 @@ export async function getDailyChannelMessages(
       console.log(
         chalk.gray(`ℹ️ Skipping #${channel.name} (excluded category)`)
       );
-      continue;
       continue;
     }
 

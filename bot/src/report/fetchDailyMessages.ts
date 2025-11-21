@@ -2,6 +2,7 @@ import chalk from "chalk";
 import { DailyMessage, getDailyChannelMessages } from "../services/messages.js";
 import type { Env } from "../types.js";
 import { callClaude } from "../services/claude.js";
+import { SurveyInformation } from "../services/surveys.js";
 
 interface DailyReport {
   date: string;
@@ -9,7 +10,7 @@ interface DailyReport {
   totalMessages: number;
   messagesByChannel: Record<
     string,
-    { total: number; messages: DailyMessage[] }
+    { total: number; messages: DailyMessage[]; survey?: SurveyInformation }
   >;
   activeUsers: string[];
 }
@@ -35,7 +36,7 @@ export async function fetchDailyMessagesReport(
     totalMessages: 0,
     messagesByChannel: {} as Record<
       string,
-      { total: number; messages: DailyMessage[] }
+      { total: number; messages: DailyMessage[]; survey?: SurveyInformation }
     >,
     activeUsers: new Set<string>(),
   };
@@ -51,6 +52,15 @@ export async function fetchDailyMessagesReport(
     channelMessages.forEach((msg) => report.activeUsers.add(msg.user));
   }
 
+  // Count surveys
+  const surveyCount = Object.values(report.messagesByChannel).filter(
+    (ch) => ch.survey
+  ).length;
+  const ongoingSurveys = Object.values(report.messagesByChannel).filter(
+    (ch) => ch.survey && !ch.survey.isClosed
+  ).length;
+  const closedSurveys = surveyCount - ongoingSurveys;
+
   console.log(chalk.cyan.bold("\n" + "=".repeat(50)));
   console.log(chalk.cyan.bold("📊 Daily Activity Report"));
   console.log(chalk.cyan.bold("=".repeat(50)));
@@ -64,16 +74,34 @@ export async function fetchDailyMessagesReport(
   console.log(
     chalk.magenta(`👥 Active Users: ${chalk.bold(report.activeUsers.size)}`)
   );
+
+  if (surveyCount > 0) {
+    console.log(
+      chalk.yellow(
+        `📋 Surveys: ${chalk.bold(
+          surveyCount
+        )} total (${ongoingSurveys} ongoing, ${closedSurveys} closed)`
+      )
+    );
+  }
+
   console.log(chalk.cyan("\n" + "─".repeat(50)));
   console.log(chalk.yellow.bold("Messages per channel:"));
   console.log(chalk.cyan("─".repeat(50)));
 
   Object.entries(report.messagesByChannel)
-    .sort(([, a], [, b]) => b - a)
-    .forEach(([channel, count]) => {
+    .sort(([, a], [, b]) => b.total - a.total)
+    .forEach(([channel, data]) => {
+      const surveyIndicator = data.survey
+        ? data.survey.isClosed
+          ? chalk.gray(" [Survey: Closed]")
+          : chalk.green(" [Survey: Ongoing]")
+        : "";
       console.log(
         chalk.white(
-          `  ${chalk.blue("#" + channel)}: ${chalk.bold.green(count)}`
+          `  ${chalk.blue("#" + channel)}: ${chalk.bold.green(
+            data.total
+          )}${surveyIndicator}`
         )
       );
     });
@@ -106,10 +134,15 @@ export const analyzeReport = async (report: DailyReport) => {
 
     This should follow the format of a discord message since it will then be sent to the server.
     You can use markdown to format the message.
-    The message length (without markdown) should be less than 300 characters. Try be as concise as possible.
+    
+    There should be one bullet point per channel with the following format : 
+    - #channel_name: summary of the activity in the channel (max 2/3 lines)
+    In the messages, there can be some ongoing / closed "survey" which is a discord pull, they are represented in the data as "message.survey". 
+    You MUST mention them in the summary of the channel.
+    If it's an ongoing survey, you MUST mention the closing date of the poll.
+    If it's a closed survey, you MUST mention the results of the poll.
 
-    At the end, you should add mentions of the most active channels, with the following format #channel_name (2 max) (Not added in the 300 characters limit)
-
+    Your tone should be like a newspaper recap of the day.
     You should answer in french only with the content of the message to be usable in my code.
     `,
     report,
