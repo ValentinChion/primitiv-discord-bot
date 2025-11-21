@@ -28,6 +28,31 @@ const loadHandlers = async () => {
 };
 
 export default {
+  /**
+   * Scheduled handler for cron triggers
+   * Runs the daily report generation and sends it to Discord
+   */
+  async scheduled(
+    event: ScheduledEvent,
+    env: Env,
+    ctx: ExecutionContext
+  ): Promise<void> {
+    console.log("Scheduled event triggered:", event.cron);
+
+    try {
+      // Import the report generation function
+      const { generateReport } = await import("./scripts/generate-report.js");
+
+      // Run the report with sendToDiscord=true
+      await generateReport(env, true);
+
+      console.log("Daily report generated and sent successfully");
+    } catch (error) {
+      console.error("Error generating scheduled report:", error);
+      throw error;
+    }
+  },
+
   async fetch(
     request: Request,
     env: Env,
@@ -39,6 +64,41 @@ export default {
     if (request.method === "GET" && url.pathname === "/") {
       const appId = env?.DISCORD_APPLICATION_ID || "not configured";
       return new Response(`👋 Discord Bot is running! App ID: ${appId}`);
+    }
+
+    // Manual trigger endpoint for report generation
+    if (request.method === "POST" && url.pathname === "/generate-report") {
+      try {
+        // Import the report generation function
+        const { generateReport } = await import("./scripts/generate-report.js");
+
+        // Run the report with sendToDiscord=true
+        const result = await generateReport(env, true);
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: "Report generated and sent to Discord",
+            preview: result[0]?.substring(0, 200) + "...",
+          }),
+          {
+            headers: { "Content-Type": "application/json" },
+            status: 200,
+          }
+        );
+      } catch (error) {
+        console.error("Error generating manual report:", error);
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error",
+          }),
+          {
+            headers: { "Content-Type": "application/json" },
+            status: 500,
+          }
+        );
+      }
     }
 
     // Discord interactions endpoint
