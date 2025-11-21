@@ -16,7 +16,7 @@ export const generateReport = async (
 ) => {
   const report = await fetchDailyMessagesReport(env);
 
-  const claudeResult = await analyzeReport(report);
+  const claudeResult = await analyzeReport(report, env);
 
   if (sendToDiscord) {
     for (const message of claudeResult) {

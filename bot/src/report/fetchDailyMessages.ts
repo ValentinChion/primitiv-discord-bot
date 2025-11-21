@@ -111,7 +111,10 @@ export async function fetchDailyMessagesReport(env: Env): Promise<DailyReport> {
   };
 }
 
-export const analyzeReport = async (report: DailyReport): Promise<string[]> => {
+export const analyzeReport = async (
+  report: DailyReport,
+  env: Env
+): Promise<string[]> => {
   console.log(chalk.cyan.bold("\n📊 Calling Claude to analyze report..."));
 
   const result = await callClaudeForJSON(
