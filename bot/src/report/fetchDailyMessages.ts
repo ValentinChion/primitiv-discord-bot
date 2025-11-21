@@ -146,6 +146,8 @@ export const analyzeReport = async (report: DailyReport) => {
     This should follow the format of a discord message since it will then be sent to the server.
     You can use markdown to format the message.
 
+    At the start of your message, you should mention the number of messages sent during the day.
+
     There should be one bullet point per channel with the following format :
     - #channel_name: summary of the activity in the channel (max 2/3 lines)
 
@@ -154,6 +156,8 @@ export const analyzeReport = async (report: DailyReport) => {
 
     And in the continuation channel:
     - #other_channel: Suite de la discussion de #channel_name sur [topic] + [new developments]
+    
+    The output MUST be an array of strings of 2000 characters max. You MUST only split between bullet points.
 
     SURVEYS:
     In the messages, there can be some ongoing / closed "survey" which is a discord poll, they are represented in the data as "message.survey".
@@ -163,7 +167,7 @@ export const analyzeReport = async (report: DailyReport) => {
 
     TONE AND LANGUAGE:
     Your tone should be like a newspaper recap of the day.
-    You should answer in french only with the content of the message to be usable in my code.
+    You should answer in french only.
     `,
     report,
     {
