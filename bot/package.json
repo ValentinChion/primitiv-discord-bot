@@ -11,6 +11,7 @@
     "generate-report": "tsx src/scripts/generate-report.ts",
     "test:prompt": "tsx src/scripts/test-prompt.ts",
     "test:categories": "tsx src/scripts/list-categories.ts",
+    "test:cron": "tsx src/scripts/trigger-cron.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "cf-typegen": "wrangler types"

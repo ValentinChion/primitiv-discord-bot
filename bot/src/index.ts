@@ -67,9 +67,6 @@ export default {
     // Manual trigger endpoint for report generation
     if (request.method === "POST" && url.pathname === "/generate-report") {
       try {
-        // Import the report generation function
-        const { generateReport } = await import("./scripts/generate-report.js");
-
         // Run the report with sendToDiscord=true
         const result = await generateReport(env, true);
 
