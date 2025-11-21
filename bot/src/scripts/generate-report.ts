@@ -3,18 +3,17 @@ import {
   fetchDailyMessagesReport,
 } from "../report/fetchDailyMessages";
 
-import { config } from "dotenv";
 import { sendDiscordMessage } from "../services/sendMessage";
+import type { Env } from "../types";
 
-config({ path: ".dev.vars" });
-
-const main = async () => {
-  // Parse command line arguments
-  const sendToDiscord = process.argv.includes("--send-discord");
-
+/**
+ * Generate and optionally send the daily report
+ * Can be called from CLI or from a Cloudflare Worker scheduled event
+ */
+export const generateReport = async (env: any, sendToDiscord: boolean = false) => {
   const report = await fetchDailyMessagesReport(
-    process.env,
-    process.env.GUILD_ID
+    env,
+    env.GUILD_ID
   );
 
   console.log(report);
@@ -28,6 +27,22 @@ const main = async () => {
       await sendDiscordMessage("1441436717004624016", message);
     }
   }
+
+  return claudeResult;
 };
 
-main();
+const main = async () => {
+  // Load dotenv only when running as CLI
+  const { config } = await import("dotenv");
+  config({ path: ".dev.vars" });
+
+  // Parse command line arguments
+  const sendToDiscord = process.argv.includes("--send-discord");
+
+  await generateReport(process.env, sendToDiscord);
+};
+
+// Only run main() if this file is executed directly (not imported)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main();
+}

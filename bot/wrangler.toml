@@ -15,3 +15,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [observability]
 enabled = true
+
+# Scheduled trigger for daily report generation
+# Runs every day at 9:00 AM UTC
+[triggers]
+crons = ["0 9 * * *"]
