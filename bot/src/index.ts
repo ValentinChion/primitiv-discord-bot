@@ -42,7 +42,7 @@ export default {
 
     try {
       // Run the report with sendToDiscord=true
-      await generateReport(env, true);
+      await generateReport(env);
 
       console.log("Daily report generated and sent successfully");
     } catch (error) {
@@ -68,7 +68,7 @@ export default {
     if (request.method === "POST" && url.pathname === "/generate-report") {
       try {
         // Run the report with sendToDiscord=true
-        const result = await generateReport(env, true);
+        const result = await generateReport(env);
 
         return new Response(
           JSON.stringify({

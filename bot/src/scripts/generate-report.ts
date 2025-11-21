@@ -8,7 +8,7 @@ const main = async () => {
   // Parse command line arguments
   const sendToDiscord = process.argv.includes("--send-discord");
 
-  await generateReport(process.env, sendToDiscord);
+  await generateReport(sendToDiscord);
 };
 
 // Only run main() if this file is executed directly (not imported)

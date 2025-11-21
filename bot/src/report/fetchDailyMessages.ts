@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { DailyMessage, getDailyChannelMessages } from "../services/messages.js";
 import type { Env } from "../types.js";
-import { callClaude, callClaudeForJSON } from "../services/claude.js";
+import { callClaudeForJSON } from "../services/claude.js";
 import { SurveyInformation } from "../services/surveys.js";
 
 interface DailyReport {
@@ -18,15 +18,13 @@ interface DailyReport {
 /**
  * Generate daily report
  */
-export async function fetchDailyMessagesReport(
-  guildId: string
-): Promise<DailyReport> {
+export async function fetchDailyMessagesReport(env: Env): Promise<DailyReport> {
   console.log(chalk.cyan.bold("\n📊 Generating daily activity report..."));
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
-  const messages = await getDailyChannelMessages(guildId, yesterday);
+  const messages = await getDailyChannelMessages(yesterday, env);
 
   // Generate statistics
   const report = {
@@ -171,7 +169,7 @@ export const analyzeReport = async (report: DailyReport): Promise<string[]> => {
     `,
     report,
     {
-      apiKey: process.env.ANTHROPIC_API_KEY!,
+      apiKey: env.ANTHROPIC_API_KEY!,
       model: "claude-haiku-4-5-20251001",
     }
   );
