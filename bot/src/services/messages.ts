@@ -344,7 +344,7 @@ export async function getDailyChannelMessages(
         }
 
         const userName = await formatUserName(
-          guildId,
+          env.GUILD_ID!,
           message.author,
           env.DISCORD_TOKEN
         );
