@@ -16,11 +16,7 @@ export const generateReport = async (env: any, sendToDiscord: boolean = false) =
     env.GUILD_ID
   );
 
-  console.log(report);
-
   const claudeResult = await analyzeReport(report);
-
-  console.log(claudeResult);
 
   if (sendToDiscord) {
     for (const message of claudeResult) {

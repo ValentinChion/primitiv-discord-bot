@@ -11,7 +11,7 @@ import {
   SurveyInformation,
 } from "./surveys.js";
 
-const CATEGORIES_EXCLUDE = ["994894044570329099"];
+const CATEGORIES_EXCLUDE = ["994894044570329099", "880137433650429984"];
 
 /**
  * Represents a Discord message with user information

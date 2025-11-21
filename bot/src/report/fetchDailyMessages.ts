@@ -146,15 +146,16 @@ export const analyzeReport = async (report: DailyReport): Promise<string[]> => {
     This should follow the format of a discord message since it will then be sent to the server.
 
     At the start of your message, you should mention the number of messages sent during the day.
+    In the following section, if there is curly braces, you MUST NOT include markdown between the curly braces. Also, do NOT put the curly braces in the message.
 
     There should be one bullet point per channel with the following format :
-    - #channel_name: summary of the activity in the channel (max 2/3 lines)
+    - {#channel_name}: summary of the activity in the channel (max 2/3 lines)
 
     For cross-channel conversations, use this format in the originating channel:
-    - #channel_name: [topic] discussed here, conversation continued in #other_channel
+    - {#channel_name}: [topic] discussed here, conversation continued in {#other_channel}
 
     And in the continuation channel:
-    - #other_channel: Suite de la discussion de #channel_name sur [topic] + [new developments]
+    - {#other_channel}: Suite de la discussion de {#channel_name} sur [topic] + [new developments]
     
     Your answer must be a valid JSON array of strings, my next action will be to use JSON.stringify() on it.
     The summary must be splitted in array of max 2000 characters. You must split the summary between bullet points, not during a sentence.
