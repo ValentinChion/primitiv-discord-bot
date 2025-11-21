@@ -283,7 +283,6 @@ export async function getDailyChannelMessages(
 
   // Step 1: Fetch all text channels
   const channels = await fetchGuildChannels(guildId, env.DISCORD_TOKEN);
-  console.log(channels);
   console.log(
     chalk.green(`✓ Found ${chalk.bold(channels.length)} text channels`)
   );

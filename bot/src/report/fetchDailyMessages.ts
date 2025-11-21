@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { DailyMessage, getDailyChannelMessages } from "../services/messages.js";
 import type { Env } from "../types.js";
-import { callClaude } from "../services/claude.js";
+import { callClaude, callClaudeForJSON } from "../services/claude.js";
 import { SurveyInformation } from "../services/surveys.js";
 
 interface DailyReport {
@@ -114,10 +114,10 @@ export async function fetchDailyMessagesReport(
   };
 }
 
-export const analyzeReport = async (report: DailyReport) => {
+export const analyzeReport = async (report: DailyReport): Promise<string[]> => {
   console.log(chalk.cyan.bold("\n📊 Calling Claude to analyze report..."));
 
-  const result = await callClaude(
+  const result = await callClaudeForJSON(
     `
     You will find below a daily report of messages sent in our Discord server.
     This Discord server is used to organize a community of people organizing events focused on electronic music.
@@ -144,7 +144,6 @@ export const analyzeReport = async (report: DailyReport) => {
 
     FORMAT INSTRUCTIONS:
     This should follow the format of a discord message since it will then be sent to the server.
-    You can use markdown to format the message.
 
     At the start of your message, you should mention the number of messages sent during the day.
 
@@ -157,8 +156,9 @@ export const analyzeReport = async (report: DailyReport) => {
     And in the continuation channel:
     - #other_channel: Suite de la discussion de #channel_name sur [topic] + [new developments]
     
-    The output MUST be an array of strings of 2000 characters max. You MUST only split between bullet points.
-
+    Your answer must be a valid JSON array of strings, my next action will be to use JSON.stringify() on it.
+    The summary must be splitted in array of max 2000 characters. You must split the summary between bullet points, not during a sentence.
+    
     SURVEYS:
     In the messages, there can be some ongoing / closed "survey" which is a discord poll, they are represented in the data as "message.survey".
     You MUST mention them in the summary of the channel.
@@ -177,5 +177,7 @@ export const analyzeReport = async (report: DailyReport) => {
   );
 
   console.log(chalk.cyan.bold("\n📊 Report analysis result :"));
-  console.log(chalk.white(result.content));
+  console.log(chalk.white(result));
+
+  return result;
 };
