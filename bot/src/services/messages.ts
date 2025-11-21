@@ -11,7 +11,13 @@ import {
   SurveyInformation,
 } from "./surveys.js";
 
-const CATEGORIES_EXCLUDE = ["994894044570329099", "880137433650429984"];
+const CATEGORIES_EXCLUDE = [
+  "994894044570329099",
+  "880137433650429984",
+  "994891192208728074",
+  "1150163593778696383",
+  "1167411805660921977",
+];
 
 /**
  * Represents a Discord message with user information
@@ -288,7 +294,11 @@ export async function getDailyChannelMessages(
 
   // Step 2: Fetch messages from each channel
   for (const channel of channels) {
-    if (channel.parent_id && CATEGORIES_EXCLUDE.includes(channel.parent_id)) {
+    if (
+      channel.parent_id &&
+      CATEGORIES_EXCLUDE.includes(channel.parent_id) &&
+      channel.id !== "1167411939266265098"
+    ) {
       console.log(
         chalk.gray(`ℹ️ Skipping #${channel.name} (excluded category)`)
       );
