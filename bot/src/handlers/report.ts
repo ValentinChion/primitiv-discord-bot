@@ -16,7 +16,18 @@ export const generateReport = async (
 ) => {
   const report = await fetchDailyMessagesReport(env);
 
-  const claudeResult = await analyzeReport(report, env);
+  // Check if there were any messages
+  let claudeResult: string[];
+  if (report.totalMessages === 0) {
+    // No messages today, send a simple announcement
+    const date = report.date;
+    claudeResult = [
+      `📊 **Rapport quotidien du ${date}**\n\nAucun message n'a été envoyé aujourd'hui sur le serveur.`
+    ];
+  } else {
+    // Messages exist, analyze them with Claude
+    claudeResult = await analyzeReport(report, env);
+  }
 
   if (sendToDiscord) {
     for (const message of claudeResult) {
