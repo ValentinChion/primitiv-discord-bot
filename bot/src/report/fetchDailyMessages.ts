@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { DailyMessage, getDailyChannelMessages } from "../services/messages.js";
+import { DailyMessage, getDailyChannelMessages, ChannelMessages } from "../services/messages.js";
 import type { Env } from "../types.js";
 import { callClaudeForJSON } from "../services/claude.js";
 import { SurveyInformation } from "../services/surveys.js";
@@ -10,7 +10,7 @@ interface DailyReport {
   totalMessages: number;
   messagesByChannel: Record<
     string,
-    { total: number; messages: DailyMessage[]; survey?: SurveyInformation }
+    { id: string; name: string; total: number; messages: DailyMessage[]; survey?: SurveyInformation }
   >;
   activeUsers: string[];
 }
@@ -33,20 +33,22 @@ export async function fetchDailyMessagesReport(env: Env): Promise<DailyReport> {
     totalMessages: 0,
     messagesByChannel: {} as Record<
       string,
-      { total: number; messages: DailyMessage[]; survey?: SurveyInformation }
+      { id: string; name: string; total: number; messages: DailyMessage[]; survey?: SurveyInformation }
     >,
     activeUsers: new Set<string>(),
   };
 
-  for (const [channelName, channelMessages] of Object.entries(messages)) {
-    report.totalMessages += channelMessages.length;
+  for (const [channelName, channelData] of Object.entries(messages)) {
+    report.totalMessages += channelData.messages.length;
     report.messagesByChannel[channelName] = {
-      messages: channelMessages,
-      total: channelMessages.length,
+      id: channelData.id,
+      name: channelData.name,
+      messages: channelData.messages,
+      total: channelData.messages.length,
     };
 
     // Track unique users
-    channelMessages.forEach((msg) => report.activeUsers.add(msg.user));
+    channelData.messages.forEach((msg) => report.activeUsers.add(msg.user));
   }
 
   // Count surveys
@@ -146,16 +148,21 @@ export const analyzeReport = async (
     This should follow the format of a discord message since it will then be sent to the server.
 
     At the start of your message, you should mention the number of messages sent during the day.
-    In the following section, if there is curly braces, you MUST NOT include markdown between the curly braces. Also, do NOT put the curly braces in the message.
+
+    IMPORTANT - CHANNEL MENTIONS:
+    Each channel in the data has an "id" field. You MUST use Discord's channel mention format to make channels clickable.
+    The format is: <#CHANNEL_ID> where CHANNEL_ID is the "id" field from the channel data.
+    For example, if a channel has id "1234567890", you write: <#1234567890>
+    DO NOT use the channel name. DO NOT use # followed by the channel name. ALWAYS use <#CHANNEL_ID>.
 
     There should be one bullet point per channel with the following format :
-    - {#channel_name}: summary of the activity in the channel (max 2/3 lines)
+    - <#CHANNEL_ID>: summary of the activity in the channel (max 2/3 lines)
 
     For cross-channel conversations, use this format in the originating channel:
-    - {#channel_name}: [topic] discussed here, conversation continued in {#other_channel}
+    - <#CHANNEL_ID>: [topic] discussed here, conversation continued in <#OTHER_CHANNEL_ID>
 
     And in the continuation channel:
-    - {#other_channel}: Suite de la discussion de {#channel_name} sur [topic] + [new developments]
+    - <#OTHER_CHANNEL_ID>: Suite de la discussion de <#CHANNEL_ID> sur [topic] + [new developments]
     
     Your answer must be a valid JSON array of strings, my next action will be to use JSON.stringify() on it.
     The summary must be splitted in array of max 2000 characters. You must split the summary between bullet points, not during a sentence.
