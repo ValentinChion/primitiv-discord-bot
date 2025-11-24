@@ -1,3 +1,5 @@
+import { Env } from "../types";
+
 /**
  * Sends a message to a specific Discord channel
  *
@@ -17,7 +19,8 @@
  */
 export async function sendDiscordMessage(
   channelId: string,
-  content: string
+  content: string,
+  env: Env
 ): Promise<any> {
   const response = await fetch(
     `https://discord.com/api/v10/channels/${channelId}/messages`,
@@ -25,7 +28,7 @@ export async function sendDiscordMessage(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+        Authorization: `Bot ${env.DISCORD_TOKEN}`,
       },
       body: JSON.stringify({ content }),
     }
@@ -62,7 +65,8 @@ export async function sendDiscordMessage(
  */
 export async function sendDiscordEmbed(
   channelId: string,
-  embed: any
+  embed: any,
+  env: Env
 ): Promise<any> {
   const response = await fetch(
     `https://discord.com/api/v10/channels/${channelId}/messages`,
@@ -70,7 +74,7 @@ export async function sendDiscordEmbed(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+        Authorization: `Bot ${env.DISCORD_TOKEN}`,
       },
       body: JSON.stringify({ embeds: [embed] }),
     }
