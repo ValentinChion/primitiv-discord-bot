@@ -215,15 +215,92 @@ async function fetchGuildMember(
 }
 
 /**
+ * Fetches all guild members in bulk to avoid individual API calls
+ * Uses pagination to handle guilds with more than 1000 members
+ */
+async function fetchAllGuildMembers(
+  guildId: string,
+  token: string
+): Promise<Map<string, DiscordGuildMember>> {
+  const memberCache = new Map<string, DiscordGuildMember>();
+  let lastUserId: string | undefined;
+  let hasMore = true;
+
+  console.log(chalk.cyan(`📋 Fetching guild members in bulk...`));
+
+  while (hasMore) {
+    // Build URL with pagination
+    let url = `https://discord.com/api/v10/guilds/${guildId}/members?limit=1000`;
+    if (lastUserId) {
+      url += `&after=${lastUserId}`;
+    }
+
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bot ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch guild members: ${response.status} ${response.statusText}`
+        );
+      }
+
+      const batch = (await response.json()) as DiscordGuildMember[];
+
+      if (batch.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      // Add members to cache
+      for (const member of batch) {
+        memberCache.set(member.user.id, member);
+      }
+
+      // If we got less than 1000, we've reached the end
+      if (batch.length < 1000) {
+        hasMore = false;
+      } else {
+        // Set pagination cursor to the last user ID
+        lastUserId = batch[batch.length - 1].user.id;
+      }
+
+      // Discord rate limiting: wait a bit between requests
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    } catch (error) {
+      console.log(chalk.red(`❌ Failed to fetch guild members:`), error);
+      hasMore = false;
+    }
+  }
+
+  console.log(
+    chalk.green(`✓ Cached ${chalk.bold(memberCache.size)} guild members`)
+  );
+
+  return memberCache;
+}
+
+/**
  * Formats user display name (firstname lastname or username)
+ * If memberCache is provided, uses cached data instead of making API calls
  */
 async function formatUserName(
   guildId: string,
   author: DiscordMessage["author"],
-  token: string
+  token: string,
+  memberCache?: Map<string, DiscordGuildMember>
 ): Promise<string> {
-  // Try to get guild member info for nickname/display name
-  const member = await fetchGuildMember(guildId, author.id, token);
+  let member: DiscordGuildMember | null = null;
+
+  // Use cache if available, otherwise fetch individually
+  if (memberCache) {
+    member = memberCache.get(author.id) || null;
+  } else {
+    member = await fetchGuildMember(guildId, author.id, token);
+  }
 
   // Priority: nickname > global_name > username
   if (member?.nick) {
@@ -292,7 +369,13 @@ export async function getDailyChannelMessages(
     chalk.green(`✓ Found ${chalk.bold(channels.length)} text channels`)
   );
 
-  // Step 2: Fetch messages from each channel
+  // Step 2: Fetch all guild members in bulk (optimization to reduce API calls)
+  const memberCache = await fetchAllGuildMembers(
+    env.GUILD_ID!,
+    env.DISCORD_TOKEN
+  );
+
+  // Step 3: Fetch messages from each channel
   for (const channel of channels) {
     if (
       channel.parent_id &&
@@ -334,7 +417,7 @@ export async function getDailyChannelMessages(
         )
       );
 
-      // Step 3: Format messages
+      // Step 4: Format messages
       const formattedMessages: DailyMessage[] = [];
 
       for (const message of messages) {
@@ -346,7 +429,8 @@ export async function getDailyChannelMessages(
         const userName = await formatUserName(
           env.GUILD_ID!,
           message.author,
-          env.DISCORD_TOKEN
+          env.DISCORD_TOKEN,
+          memberCache
         );
 
         formattedMessages.push({

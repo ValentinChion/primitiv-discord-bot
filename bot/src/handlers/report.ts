@@ -20,7 +20,7 @@ export const generateReport = async (
 
   if (sendToDiscord) {
     for (const message of claudeResult) {
-      await sendDiscordMessage("1441436717004624016", message);
+      await sendDiscordMessage("1441436717004624016", message, env);
     }
   }
 
