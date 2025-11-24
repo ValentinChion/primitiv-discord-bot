@@ -29,10 +29,19 @@ export interface DailyMessage {
 }
 
 /**
- * Output format: channel name mapped to array of messages
+ * Channel information with messages
+ */
+export interface ChannelMessages {
+  id: string;
+  name: string;
+  messages: DailyMessage[];
+}
+
+/**
+ * Output format: channel name mapped to channel info and messages
  */
 export interface DailyChannelMessages {
-  [channelName: string]: DailyMessage[];
+  [channelName: string]: ChannelMessages;
 }
 
 /**
@@ -442,7 +451,11 @@ export async function getDailyChannelMessages(
 
       // Only add channel to result if it has messages
       if (formattedMessages.length > 0) {
-        result[channel.name] = formattedMessages;
+        result[channel.name] = {
+          id: channel.id,
+          name: channel.name,
+          messages: formattedMessages,
+        };
       }
     } catch (error) {
       console.log(
