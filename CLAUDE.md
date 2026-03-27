@@ -1,0 +1,100 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Repository Overview
+
+This is a financial request management system for Discord consisting of two separate apps:
+- **`bot/`** — Cloudflare Worker (serverless) that handles Discord slash commands and interactions
+- **`dashboard/`** — Next.js 16 web dashboard for viewing and managing financial requests
+
+Both share the same PostgreSQL database schema via Prisma.
+
+## Commands
+
+### Bot (`bot/`)
+```bash
+npm run dev          # Local development via wrangler
+npm run deploy       # Deploy to Cloudflare Workers
+npm run register     # Register slash commands with Discord API
+npm run prisma:generate  # Regenerate Prisma client after schema changes
+npm run prisma:migrate   # Apply migrations (production)
+
+# Utility scripts
+npm run generate-report   # Generate and preview a daily report
+npm run test:prompt       # Test Claude AI prompt
+npm run test:categories   # List categories
+npm run test:cron         # Manually trigger the cron job
+```
+
+### Dashboard (`dashboard/`)
+```bash
+npm run dev          # Next.js development server
+npm run build        # Generate Prisma client + Next.js production build
+npm run lint         # ESLint
+npm run prisma:generate  # Regenerate Prisma client
+npm run prisma:migrate   # Apply migrations (dev)
+npm run prisma:studio    # Open Prisma data browser
+```
+
+## Architecture
+
+### Bot (Cloudflare Worker)
+
+Entry point: `bot/src/index.ts` — HTTP handler that receives Discord interaction webhooks and routes to handlers.
+
+**Slash commands:**
+- `/demande` — Creates a financial request, stores it in DB, DMs the treasurer (notification only — no buttons)
+
+**Cron job** (`0 4 * * *` UTC daily) — Fetches messages from configured Discord channels, analyzes them with Claude AI, and posts a financial report.
+
+The bot uses **Discord Interactions API** (HTTP-based), not a WebSocket gateway — no persistent connection needed. Handlers are lazy-loaded to avoid unnecessary DB connections on health check requests.
+
+### Dashboard (Next.js 16)
+
+- `/demandes` — Table of all financial requests with inline status updates
+- `/paiements` — Table of payments with Google Drive invoice links
+- API routes: `app/api/demandes/route.ts`, `app/api/paiements/route.ts`
+- UI built with Shadcn (new-york theme, zinc base color, lucide icons) + Tailwind CSS v4
+
+### Database (Prisma + PostgreSQL)
+
+Schema lives in both `bot/prisma/schema.prisma` and `dashboard/prisma/schema.prisma` (kept in sync).
+
+Key models:
+- `Demande` — Financial request with status (PENDING, VALIDATED, DENIED) and type (DEMANDE, PAIEMENT, REMBOURSEMENT)
+- `Paiement` — Payment record, linked to a Demande
+
+**Important:** The bot uses `@prisma/extension-accelerate` because Cloudflare Workers require Prisma Accelerate for connection pooling. The dashboard can use a standard `DATABASE_URL`. These are different npm packages (`@prisma/extension-accelerate@1.2.1` vs `@prisma/extension-accelerate@2.0.2`).
+
+### Services (`bot/src/services/`)
+
+| File | Purpose |
+|---|---|
+| `database.ts` | Prisma client + `DemandeService` CRUD operations |
+| `claude.ts` | Claude API calls (`callClaude`, `callClaudeForJSON`, `callClaudeStreaming`) |
+| `messages.ts` | Fetch messages from Discord channels (`getDailyChannelMessages`) |
+| `sendMessage.ts` | Send/edit Discord messages |
+| `surveys.ts` | Survey handling |
+
+## Environment Variables
+
+### Bot (`.dev.vars` for local, Cloudflare secrets for production)
+```
+DISCORD_TOKEN, DISCORD_PUBLIC_KEY, DISCORD_APPLICATION_ID
+TRESORIER_ID                 # Treasurer's Discord user ID (DM target for new requests)
+DATABASE_URL                 # Must be a Prisma Accelerate URL (prisma://...)
+ANTHROPIC_API_KEY            # Optional, for daily report analysis
+```
+
+### Dashboard (`.env`)
+```
+DATABASE_URL                 # Standard PostgreSQL URL
+```
+
+## TypeScript Configuration
+
+- **Bot:** `ES2022` target, `bundler` module resolution (Cloudflare Workers compatible)
+- **Dashboard:** `ES2017` target, `DOM` libs, path alias `@/*` → `./src/*`
+- Both use strict TypeScript
+- Dashboard's `next.config.ts` has `ignoreBuildErrors: true` and `ignoreDuringBuilds: true` — type errors won't fail the build

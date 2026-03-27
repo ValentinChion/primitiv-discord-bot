@@ -3,7 +3,7 @@
  * Creates a new financial request
  */
 
-import { InteractionResponseType, MessageComponentTypes, ButtonStyleTypes } from 'discord-interactions';
+import { InteractionResponseType } from 'discord-interactions';
 import { DemandeService } from '../services/database.js';
 import type { Env } from '../types.js';
 
@@ -68,7 +68,7 @@ export async function handleDemandeCommand(
     // Create the request
     const demande = await DemandeService.createDemande(prisma, nom, userId, montant, description);
 
-    // Send DM to treasurer with accept/deny buttons
+    // Send DM to treasurer
     const dmContent = {
       content: `📋 **Nouvelle demande de dépense**\n\n` +
         `**Nom:** ${nom}\n` +
@@ -76,25 +76,6 @@ export async function handleDemandeCommand(
         `**Description:** ${description}\n` +
         `**Demandeur:** <@${userId}>\n` +
         `**ID:** #${demande.id}`,
-      components: [
-        {
-          type: MessageComponentTypes.ACTION_ROW,
-          components: [
-            {
-              type: MessageComponentTypes.BUTTON,
-              style: ButtonStyleTypes.SUCCESS,
-              label: 'Accepter',
-              custom_id: `accept_${demande.id}`,
-            },
-            {
-              type: MessageComponentTypes.BUTTON,
-              style: ButtonStyleTypes.DANGER,
-              label: 'Refuser',
-              custom_id: `deny_${demande.id}`,
-            },
-          ],
-        },
-      ],
     };
 
     // Send DM to treasurer

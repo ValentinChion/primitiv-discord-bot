@@ -14,17 +14,9 @@ import { generateReport } from "./handlers/report.js";
 // Lazy-load handlers to avoid importing Prisma at module load time
 // This is important for the health check endpoint to work without database dependencies
 const loadHandlers = async () => {
-  const [demande, confirme, remboursement, buttons] = await Promise.all([
-    import("./handlers/demande.js"),
-    import("./handlers/confirme.js"),
-    import("./handlers/remboursement.js"),
-    import("./handlers/buttons.js"),
-  ]);
+  const demande = await import("./handlers/demande.js");
   return {
     handleDemandeCommand: demande.handleDemandeCommand,
-    handleConfirmeCommand: confirme.handleConfirmeCommand,
-    handleRemboursementCommand: remboursement.handleRemboursementCommand,
-    handleButtonInteraction: buttons.handleButtonInteraction,
   };
 };
 
@@ -136,10 +128,6 @@ export default {
           switch (name) {
             case "demande":
               return handlers.handleDemandeCommand(interaction, env);
-            case "confirme":
-              return handlers.handleConfirmeCommand(interaction, env);
-            case "remboursement":
-              return handlers.handleRemboursementCommand(interaction, env);
             default:
               return new Response(
                 JSON.stringify({
@@ -152,11 +140,6 @@ export default {
                 { headers: { "Content-Type": "application/json" } }
               );
           }
-        }
-
-        // Handle button interactions
-        if (interaction.type === InteractionType.MESSAGE_COMPONENT) {
-          return handlers.handleButtonInteraction(interaction, env);
         }
 
         console.error("Unknown interaction type:", interaction.type);
