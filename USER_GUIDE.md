@@ -1,70 +1,40 @@
-# User Guide — Primitiv Discord Bot
+## Guide d'utilisation — Bot Primitiv
 
-This bot manages financial requests on your Discord server. Members submit expense requests via slash command; the treasurer is notified automatically. A daily report is posted every morning.
+Ce bot gère les demandes de dépenses sur le serveur. Les membres soumettent leurs demandes via une commande slash. Je suis notifié automatiquement pour faire le paiement puis je vous renvoie un message quand c'est bon.
 
----
+## Commandes
 
-## Slash Commands
+### `/demande` — Soumettre une demande de dépense
 
-### `/demande` — Submit a financial request
+**Paramètres :**
+- `nom` — Identifiant unique de la demande (ex : `achat_stylos`)
+- `montant` — Montant en euros (doit être positif)
+- `description` — Objet de la dépense
+- `facture` *(optionnel)* — Devis ou facture à joindre (PDF, image…)
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `nom` | text | yes | Unique name for the request (e.g. `achat_stylos`) |
-| `montant` | number | yes | Amount in euros (must be positive) |
-| `description` | text | yes | What the money is for |
-
-**Example:**
+**Exemple :**
 ```
-/demande nom:achat_stylos montant:12.50 description:Stylos pour la réunion du CA
+/demande nom:location_lights montant:30 description:Location des lights pour le bar Essentiel
 ```
 
-**What happens:**
-1. The request is saved to the database with status **PENDING**.
-2. The treasurer receives a DM with the request details (name, amount, description, requester, ID).
-3. You get a confirmation message (visible only to you) with the assigned ID.
+**Ce qui se passe :**
+1. La demande est enregistrée avec le statut **EN ATTENTE**.
+2. Si un fichier est joint, je le recevrais directement pour faire le paiement plus rapidement.
+3. Le trésorier reçoit un DM avec le nom, le montant, la description, le demandeur, l'ID, et le lien du fichier si présent.
+4. Tu reçois un message de confirmation (visible uniquement par toi) avec l'ID attribué.
 
-**Validation rules:**
-- `nom` must be unique — reusing a name that already exists will return an error.
-- `montant` must be greater than 0.
+## Statuts des demandes
 
----
+- **EN ATTENTE** — Soumise, en attente de validation par le trésorier
+- **VALIDÉE** — Approuvée par le trésorier
+- **REFUSÉE** — Rejetée par le trésorier
 
-## Daily Report
+## Erreurs courantes
 
-Every day at **4:00 AM UTC**, the bot automatically:
-1. Fetches messages from the configured Discord channels.
-2. Analyzes them with Claude AI (if `ANTHROPIC_API_KEY` is set).
-3. Posts a summary report to the reports channel.
+**`Une demande avec le nom "X" existe déjà`**
 
-If there were no messages that day, it posts a simple "no activity" notice instead.
+**`Tous les paramètres sont requis`**
+→ Un champ a été laissé vide. Il faut absolument remplir les trois paramètres.
 
----
-
-## Managing Requests (Dashboard)
-
-Requests can be reviewed and updated via the web dashboard:
-
-- **`/demandes`** — View all financial requests, update their status (PENDING / VALIDATED / DENIED).
-- **`/paiements`** — View payments linked to validated requests, with Google Drive invoice links.
-
----
-
-## Status Reference
-
-| Status | Meaning |
-|--------|---------|
-| `PENDING` | Submitted, awaiting treasurer review |
-| `VALIDATED` | Approved by the treasurer |
-| `DENIED` | Rejected by the treasurer |
-
----
-
-## Troubleshooting
-
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `Une demande avec le nom "X" existe déjà` | The `nom` is already taken | Choose a different unique name |
-| `Le montant doit être positif` | Amount is 0 or negative | Enter a positive number |
-| `Tous les paramètres sont requis` | A field was left blank | Fill in all three parameters |
-| `Une erreur est survenue` | Internal server error | Try again; contact an admin if it persists |
+**`Une erreur est survenue`**
+→ Une erreur du bot, réessayez une deuxième fois et si ça persiste, prévenez-moi !

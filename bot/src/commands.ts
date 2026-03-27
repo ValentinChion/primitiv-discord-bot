@@ -27,6 +27,12 @@ export const DEMANDE_COMMAND = {
       description: "Description de la demande",
       required: true,
     },
+    {
+      type: ApplicationCommandOptionType.Attachment,
+      name: "facture",
+      description: "Devis ou facture (optionnel)",
+      required: false,
+    },
   ],
 };
 

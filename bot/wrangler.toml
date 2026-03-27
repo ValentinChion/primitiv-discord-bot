@@ -8,10 +8,12 @@ compatibility_flags = ["nodejs_compat"]
 # DISCORD_PUBLIC_KEY - Public key for verifying requests
 # DISCORD_APPLICATION_ID - Application ID from Discord
 # DATABASE_URL - Prisma Accelerate connection string (required for Prisma on Workers)
-# GOOGLE_DRIVE_FOLDER_ID - Google Drive folder ID for invoice uploads
-# GOOGLE_SERVICE_ACCOUNT_EMAIL - Service account email
-# GOOGLE_PRIVATE_KEY - Service account private key
 # TRESORIER_ID - Discord user ID of treasurer
+# R2_PUBLIC_URL - Public base URL of the R2 bucket (e.g. https://pub-xxxx.r2.dev)
+
+[[r2_buckets]]
+binding = "FILES_BUCKET"
+bucket_name = "primitiv-files"
 
 [observability]
 enabled = true

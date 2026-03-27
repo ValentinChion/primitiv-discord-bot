@@ -16,29 +16,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Statut = "PENDING" | "VALIDATED" | "DENIED";
-type Type = "DEMANDE" | "PAIEMENT" | "REMBOURSEMENT";
 
 interface Demande {
   id: number;
   name: string;
   userId: string;
+  discordUsername: string | null;
   montant: number;
   description: string;
-  type: Type;
   statut: Statut;
   createdAt: string;
-  updatedAt: string;
   factureUrl: string | null;
-  paiementId: number | null;
 }
+
+const getStatutBadgeColor = (statut: Statut) => {
+  switch (statut) {
+    case "VALIDATED": {
+      return "text-green-700 bg-green-100";
+    }
+    case "DENIED": {
+      return "text-red-700 bg-red-100";
+    }
+    case "PENDING": {
+      return "text-yellow-700 bg-yellow-100";
+    }
+  }
+};
 
 export default function DemandesPage() {
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDemandes();
@@ -50,10 +63,20 @@ export default function DemandesPage() {
       if (!response.ok) throw new Error("Failed to fetch demandes");
       const data = await response.json();
       setDemandes(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteDemande = async (id: number) => {
+    try {
+      const response = await fetch(`/api/demandes?id=${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Failed to delete demande");
+      setDemandes((prev) => prev.filter((d) => d.id !== id));
+    } catch (error) {
+      console.error("Error deleting demande:", error);
     }
   };
 
@@ -73,31 +96,9 @@ export default function DemandesPage() {
       setDemandes((prev) =>
         prev.map((d) => (d.id === id ? { ...d, statut } : d))
       );
-    } catch (err) {
-      console.error("Error updating statut:", err);
+    } catch (error) {
+      console.error("Error updating statut:", error);
       alert("Failed to update status");
-    }
-  };
-
-  const getStatutBadgeColor = (statut: Statut) => {
-    switch (statut) {
-      case "VALIDATED":
-        return "text-green-700 bg-green-100";
-      case "DENIED":
-        return "text-red-700 bg-red-100";
-      case "PENDING":
-        return "text-yellow-700 bg-yellow-100";
-    }
-  };
-
-  const getTypeBadgeColor = (type: Type) => {
-    switch (type) {
-      case "DEMANDE":
-        return "text-blue-700 bg-blue-100";
-      case "PAIEMENT":
-        return "text-purple-700 bg-purple-100";
-      case "REMBOURSEMENT":
-        return "text-orange-700 bg-orange-100";
     }
   };
 
@@ -111,11 +112,11 @@ export default function DemandesPage() {
     );
   }
 
-  if (error) {
+  if (errorMessage) {
     return (
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-destructive">Erreur: {error}</p>
+          <p className="text-destructive">Erreur: {errorMessage}</p>
         </div>
       </div>
     );
@@ -134,11 +135,11 @@ export default function DemandesPage() {
                 <TableRow>
                   <TableHead>ID</TableHead>
                   <TableHead>Nom</TableHead>
-                  <TableHead>User ID</TableHead>
+                  <TableHead>Utilisateur</TableHead>
                   <TableHead>Montant</TableHead>
-                  <TableHead>Type</TableHead>
                   <TableHead>Statut</TableHead>
                   <TableHead>Description</TableHead>
+                  <TableHead>Facture</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -146,7 +147,7 @@ export default function DemandesPage() {
               <TableBody>
                 {demandes.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8">
+                    <TableCell colSpan={8} className="text-center py-8">
                       Aucune demande trouvée
                     </TableCell>
                   </TableRow>
@@ -155,20 +156,13 @@ export default function DemandesPage() {
                     <TableRow key={demande.id}>
                       <TableCell className="font-medium">{demande.id}</TableCell>
                       <TableCell>{demande.name}</TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {demande.userId}
+                      <TableCell>
+                        {demande.discordUsername ?? (
+                          <span className="font-mono text-xs text-muted-foreground">{demande.userId}</span>
+                        )}
                       </TableCell>
                       <TableCell className="font-semibold">
                         {demande.montant.toFixed(2)} €
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getTypeBadgeColor(
-                            demande.type
-                          )}`}
-                        >
-                          {demande.type}
-                        </span>
                       </TableCell>
                       <TableCell>
                         <span
@@ -182,25 +176,43 @@ export default function DemandesPage() {
                       <TableCell className="max-w-xs truncate">
                         {demande.description}
                       </TableCell>
+                      <TableCell>
+                        {demande.factureUrl ? (
+                          <a href={demande.factureUrl} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" size="sm">Voir</Button>
+                          </a>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">—</span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         {new Date(demande.createdAt).toLocaleDateString("fr-FR")}
                       </TableCell>
                       <TableCell>
-                        <Select
-                          value={demande.statut}
-                          onValueChange={(value) =>
-                            updateStatut(demande.id, value as Statut)
-                          }
-                        >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="PENDING">PENDING</SelectItem>
-                            <SelectItem value="VALIDATED">VALIDATED</SelectItem>
-                            <SelectItem value="DENIED">DENIED</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={demande.statut}
+                            onValueChange={(value) =>
+                              updateStatut(demande.id, value as Statut)
+                            }
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="PENDING">PENDING</SelectItem>
+                              <SelectItem value="VALIDATED">VALIDATED</SelectItem>
+                              <SelectItem value="DENIED">DENIED</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => deleteDemande(demande.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

@@ -5,6 +5,7 @@
 
 import { InteractionResponseType } from 'discord-interactions';
 import { DemandeService } from '../services/database.js';
+import { uploadToR2, downloadFromDiscord } from '../services/storage.js';
 import type { Env } from '../types.js';
 
 export async function handleDemandeCommand(
@@ -13,11 +14,14 @@ export async function handleDemandeCommand(
 ): Promise<Response> {
   const { options, member } = interaction.data;
   const userId = interaction.member?.user?.id || interaction.user?.id;
+  const discordUsername = interaction.member?.user?.username || interaction.user?.username;
 
   // Extract command options
   const nom = options.find((opt: any) => opt.name === 'nom')?.value;
   const montant = options.find((opt: any) => opt.name === 'montant')?.value;
   const description = options.find((opt: any) => opt.name === 'description')?.value;
+  const attachmentId = options.find((opt: any) => opt.name === 'facture')?.value;
+  const attachment = attachmentId ? interaction.data.resolved?.attachments?.[attachmentId] : null;
 
   // Validate inputs
   if (!nom || !montant || !description) {
@@ -65,8 +69,22 @@ export async function handleDemandeCommand(
       );
     }
 
+    // Upload attachment to Google Drive if provided
+    let factureUrl: string | undefined;
+    if (attachment) {
+      const fileBuffer = await downloadFromDiscord(attachment.url);
+      const uploadResult = await uploadToR2(
+        env.FILES_BUCKET,
+        fileBuffer,
+        `${nom}_${Date.now()}_${attachment.filename}`,
+        attachment.content_type || 'application/octet-stream',
+        env.R2_PUBLIC_URL
+      );
+      factureUrl = uploadResult.url;
+    }
+
     // Create the request
-    const demande = await DemandeService.createDemande(prisma, nom, userId, montant, description);
+    const demande = await DemandeService.createDemande(prisma, nom, userId, montant, description, factureUrl, discordUsername);
 
     // Send DM to treasurer
     const dmContent = {
@@ -75,7 +93,8 @@ export async function handleDemandeCommand(
         `**Montant:** ${montant}€\n` +
         `**Description:** ${description}\n` +
         `**Demandeur:** <@${userId}>\n` +
-        `**ID:** #${demande.id}`,
+        `**ID:** #${demande.id}` +
+        (factureUrl ? `\n**Fichier:** ${factureUrl}` : ''),
     };
 
     // Send DM to treasurer

@@ -74,6 +74,7 @@ Key models:
 | `database.ts` | Prisma client + `DemandeService` CRUD operations |
 | `claude.ts` | Claude API calls (`callClaude`, `callClaudeForJSON`, `callClaudeStreaming`) |
 | `messages.ts` | Fetch messages from Discord channels (`getDailyChannelMessages`) |
+| `storage.ts` | Upload files to Cloudflare R2, download from Discord CDN |
 | `sendMessage.ts` | Send/edit Discord messages |
 | `surveys.ts` | Survey handling |
 
@@ -84,6 +85,7 @@ Key models:
 DISCORD_TOKEN, DISCORD_PUBLIC_KEY, DISCORD_APPLICATION_ID
 TRESORIER_ID                 # Treasurer's Discord user ID (DM target for new requests)
 DATABASE_URL                 # Must be a Prisma Accelerate URL (prisma://...)
+R2_PUBLIC_URL                # Public base URL of the R2 bucket (e.g. https://pub-xxxx.r2.dev)
 ANTHROPIC_API_KEY            # Optional, for daily report analysis
 ```
 

@@ -28,7 +28,9 @@ export class DemandeService {
     name: string,
     userId: string,
     montant: number,
-    description: string
+    description: string,
+    factureUrl?: string,
+    discordUsername?: string
   ) {
     return await prisma.demande.create({
       data: {
@@ -38,6 +40,8 @@ export class DemandeService {
         description,
         type: "DEMANDE",
         statut: "PENDING",
+        factureUrl,
+        discordUsername,
       },
     });
   }

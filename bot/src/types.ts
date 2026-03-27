@@ -13,10 +13,9 @@ export interface Env {
   // Database
   DATABASE_URL: string;
 
-  // Google Drive
-  GOOGLE_DRIVE_FOLDER_ID: string;
-  GOOGLE_SERVICE_ACCOUNT_EMAIL: string;
-  GOOGLE_PRIVATE_KEY: string;
+  // R2 file storage
+  FILES_BUCKET: R2Bucket;
+  R2_PUBLIC_URL: string;
 
   // Claude API
   ANTHROPIC_API_KEY?: string; // Optional: For AI-powered features

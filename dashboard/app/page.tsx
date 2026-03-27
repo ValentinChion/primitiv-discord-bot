@@ -10,10 +10,10 @@ export default function Home() {
           PRIMITIV: Suivis Financier
         </h1>
         <p className="text-muted-foreground text-lg">
-          Dashboard de suivi des demandes et paiements financiers
+          Dashboard de suivi des demandes financières
         </p>
 
-        <div className="grid md:grid-cols-2 gap-6 w-full mt-8">
+        <div className="w-full mt-8 max-w-sm">
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <CardTitle>Demandes</CardTitle>
@@ -25,22 +25,6 @@ export default function Home() {
               <Link href="/demandes">
                 <Button className="w-full">
                   Voir les demandes
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle>Paiements</CardTitle>
-              <CardDescription>
-                Consulter l'historique de tous les paiements effectués
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link href="/paiements">
-                <Button className="w-full">
-                  Voir les paiements
                 </Button>
               </Link>
             </CardContent>

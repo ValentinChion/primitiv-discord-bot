@@ -16,12 +16,6 @@ export function Navbar() {
               >
                 Demandes
               </Link>
-              <Link
-                href="/paiements"
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Paiements
-              </Link>
             </div>
           </div>
         </div>

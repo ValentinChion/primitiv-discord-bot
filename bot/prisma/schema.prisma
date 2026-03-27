@@ -23,8 +23,9 @@ enum Type {
 
 model Demande {
   id          Int       @id @default(autoincrement())
-  name        String    @unique
-  userId      String
+  name            String    @unique
+  userId          String
+  discordUsername String?
   montant     Float
   description String
   type        Type
