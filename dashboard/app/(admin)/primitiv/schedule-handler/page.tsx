@@ -32,6 +32,17 @@ const EMPTY_FORM = { stage: "MAIN" as Stage, day: "FRIDAY" as Day, startTime: ""
 
 const DAY_ORDER: Record<Day, number> = { FRIDAY: 0, SATURDAY: 1, SUNDAY: 2 };
 
+const DAY_DATES: Record<Day, string> = {
+  FRIDAY: "2026-05-29",
+  SATURDAY: "2026-05-30",
+  SUNDAY: "2026-05-31",
+};
+
+const toTimeStr = (iso: string) => {
+  const d = new Date(iso);
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
+
 export default function ScheduleHandlerPage() {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,8 +65,8 @@ export default function ScheduleHandlerPage() {
     setForm({
       stage: slot.stage,
       day: slot.day,
-      startTime: slot.startTime.slice(0, 16),
-      endTime: slot.endTime.slice(0, 16),
+      startTime: toTimeStr(slot.startTime),
+      endTime: toTimeStr(slot.endTime),
       artistName: slot.artistName,
       note: slot.note ?? "",
     });
@@ -68,7 +79,12 @@ export default function ScheduleHandlerPage() {
     await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, note: form.note || null }),
+      body: JSON.stringify({
+        ...form,
+        startTime: `${DAY_DATES[form.day]}T${form.startTime}`,
+        endTime: `${DAY_DATES[form.day]}T${form.endTime}`,
+        note: form.note || null,
+      }),
     });
     setDialogOpen(false);
     fetchSlots();
@@ -88,36 +104,54 @@ export default function ScheduleHandlerPage() {
     <div className="container mx-auto p-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-2xl">Schedule — Ekotone</CardTitle>
+          <CardTitle className="text-2xl">Programme — Ekotone</CardTitle>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openAdd}><Plus className="h-4 w-4 mr-2" />Add slot</Button>
+              <Button onClick={openAdd}><Plus className="h-4 w-4 mr-2" />Ajouter un set</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{editingSlot ? "Edit slot" : "Add slot"}</DialogTitle>
+                <DialogTitle>{editingSlot ? "Modifier le set" : "Ajouter un set"}</DialogTitle>
               </DialogHeader>
               <div className="flex flex-col gap-4 pt-2">
-                <Select value={form.day} onValueChange={(v) => setForm({ ...form, day: v as Day })}>
-                  <SelectTrigger><SelectValue placeholder="Day" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="FRIDAY">Friday</SelectItem>
-                    <SelectItem value="SATURDAY">Saturday</SelectItem>
-                    <SelectItem value="SUNDAY">Sunday</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v as Stage })}>
-                  <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MAIN">Main Stage</SelectItem>
-                    <SelectItem value="AFTER">After</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input type="datetime-local" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} placeholder="Start time" />
-                <Input type="datetime-local" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} placeholder="End time" />
-                <Input value={form.artistName} onChange={(e) => setForm({ ...form, artistName: e.target.value })} placeholder="Artist name" />
-                <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="Note / genre (optional)" />
-                <Button onClick={saveSlot}>Save</Button>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Jour</label>
+                  <Select value={form.day} onValueChange={(v) => setForm({ ...form, day: v as Day })}>
+                    <SelectTrigger><SelectValue placeholder="Jour" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="FRIDAY">Vendredi</SelectItem>
+                      <SelectItem value="SATURDAY">Samedi</SelectItem>
+                      <SelectItem value="SUNDAY">Dimanche</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Scène</label>
+                  <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v as Stage })}>
+                    <SelectTrigger><SelectValue placeholder="Scène" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MAIN">Main Stage</SelectItem>
+                      <SelectItem value="AFTER">After</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Heure de début</label>
+                  <Input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Heure de fin</label>
+                  <Input type="time" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Nom de l&apos;artiste</label>
+                  <Input value={form.artistName} onChange={(e) => setForm({ ...form, artistName: e.target.value })} placeholder="Nom de l'artiste" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Note / genre</label>
+                  <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="Note / genre (optionnel)" />
+                </div>
+                <Button onClick={saveSlot}>Enregistrer</Button>
               </div>
             </DialogContent>
           </Dialog>
@@ -126,22 +160,22 @@ export default function ScheduleHandlerPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Day</TableHead>
-                <TableHead>Stage</TableHead>
-                <TableHead>Start</TableHead>
-                <TableHead>End</TableHead>
-                <TableHead>Artist</TableHead>
+                <TableHead>Jour</TableHead>
+                <TableHead>Scène</TableHead>
+                <TableHead>Début</TableHead>
+                <TableHead>Fin</TableHead>
+                <TableHead>Artiste</TableHead>
                 <TableHead>Note</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {slots.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center py-8">No slots yet</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center py-8">Aucun set pour le moment</TableCell></TableRow>
               ) : slots.map((slot) => (
                 <TableRow key={slot.id}>
-                  <TableCell>{slot.day}</TableCell>
-                  <TableCell>{slot.stage}</TableCell>
+                  <TableCell>{slot.day === "FRIDAY" ? "Vendredi" : slot.day === "SATURDAY" ? "Samedi" : "Dimanche"}</TableCell>
+                  <TableCell>{slot.stage === "MAIN" ? "Main Stage" : "After"}</TableCell>
                   <TableCell>{formatTime(slot.startTime)}</TableCell>
                   <TableCell>{formatTime(slot.endTime)}</TableCell>
                   <TableCell className="font-medium">{slot.artistName}</TableCell>
