@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import { DailyMessage, getDailyChannelMessages, ChannelMessages } from "../services/messages.js";
+import { resetSubrequestCount } from "../services/trackedFetch.js";
 import type { Env } from "../types.js";
 import { callClaudeForJSON } from "../services/claude.js";
 import { SurveyInformation } from "../services/surveys.js";
@@ -13,18 +14,20 @@ interface DailyReport {
     { id: string; name: string; total: number; messages: DailyMessage[]; survey?: SurveyInformation }
   >;
   activeUsers: string[];
+  skippedChannels: Array<{ id: string; name: string }>;
 }
 
 /**
  * Generate daily report
  */
 export async function fetchDailyMessagesReport(env: Env): Promise<DailyReport> {
+  resetSubrequestCount();
   console.log(chalk.cyan.bold("\n📊 Generating daily activity report..."));
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
-  const messages = await getDailyChannelMessages(yesterday, env);
+  const { channels: messages, skippedChannels } = await getDailyChannelMessages(yesterday, env);
 
   // Generate statistics
   const report = {
@@ -36,6 +39,7 @@ export async function fetchDailyMessagesReport(env: Env): Promise<DailyReport> {
       { id: string; name: string; total: number; messages: DailyMessage[]; survey?: SurveyInformation }
     >,
     activeUsers: new Set<string>(),
+    skippedChannels,
   };
 
   for (const [channelName, channelData] of Object.entries(messages)) {
@@ -107,9 +111,14 @@ export async function fetchDailyMessagesReport(env: Env): Promise<DailyReport> {
 
   console.log(chalk.cyan("=".repeat(50) + "\n"));
 
+  if (skippedChannels.length > 0) {
+    console.log(chalk.yellow(`⚠️  ${chalk.bold(skippedChannels.length)} channels not analyzed (limit reached): ${skippedChannels.map((c) => "#" + c.name).join(", ")}`));
+  }
+
   return {
     ...report,
     activeUsers: Array.from(report.activeUsers),
+    skippedChannels,
   };
 }
 
@@ -164,6 +173,11 @@ export const analyzeReport = async (
     And in the continuation channel:
     - <#OTHER_CHANNEL_ID>: Suite de la discussion de <#CHANNEL_ID> sur [topic] + [new developments]
     
+    SKIPPED CHANNELS:
+    The report data may contain a "skippedChannels" array. If it is non-empty, you MUST add a final line to the last message:
+    "⚠️ Canaux non analysés (limite de canaux atteinte) : <#ID1> <#ID2> ..."
+    Use the Discord channel mention format <#CHANNEL_ID> for each entry. Do not add this line if "skippedChannels" is empty.
+
     Your answer must be a valid JSON array of strings, my next action will be to use JSON.stringify() on it.
     The summary must be splitted in array of max 2000 characters. You must split the summary between bullet points, not during a sentence.
     

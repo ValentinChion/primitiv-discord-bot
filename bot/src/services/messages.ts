@@ -10,6 +10,9 @@ import {
   formatPollMessage,
   SurveyInformation,
 } from "./surveys.js";
+import { trackedFetch } from "./trackedFetch.js";
+
+const MAX_CHANNELS = 45;
 
 const CATEGORIES_EXCLUDE = [
   "994894044570329099",
@@ -42,6 +45,11 @@ export interface ChannelMessages {
  */
 export interface DailyChannelMessages {
   [channelName: string]: ChannelMessages;
+}
+
+export interface DailyChannelResult {
+  channels: DailyChannelMessages;
+  skippedChannels: Array<{ id: string; name: string }>;
 }
 
 /**
@@ -94,7 +102,7 @@ async function fetchGuildChannels(
   guildId: string,
   token: string
 ): Promise<DiscordChannel[]> {
-  const response = await fetch(
+  const response = await trackedFetch(
     `https://discord.com/api/v10/guilds/${guildId}/channels`,
     {
       headers: {
@@ -137,7 +145,7 @@ async function fetchChannelMessages(
       url += `&before=${lastMessageId}`;
     }
 
-    const response = await fetch(url, {
+    const response = await trackedFetch(url, {
       headers: {
         Authorization: `Bot ${token}`,
       },
@@ -203,7 +211,7 @@ async function fetchGuildMember(
   token: string
 ): Promise<DiscordGuildMember | null> {
   try {
-    const response = await fetch(
+    const response = await trackedFetch(
       `https://discord.com/api/v10/guilds/${guildId}/members/${userId}`,
       {
         headers: {
@@ -245,7 +253,7 @@ async function fetchAllGuildMembers(
     }
 
     try {
-      const response = await fetch(url, {
+      const response = await trackedFetch(url, {
         headers: {
           Authorization: `Bot ${token}`,
         },
@@ -353,8 +361,9 @@ async function formatUserName(
 export async function getDailyChannelMessages(
   targetDate: Date,
   env: Env
-): Promise<DailyChannelMessages> {
+): Promise<DailyChannelResult> {
   const result: DailyChannelMessages = {};
+  const skippedChannels: Array<{ id: string; name: string }> = [];
 
   // Calculate date range (start of day to start of next day in UTC)
   const startOfDay = new Date(targetDate);
@@ -385,6 +394,7 @@ export async function getDailyChannelMessages(
   );
 
   // Step 3: Fetch messages from each channel
+  let fetchedCount = 0;
   for (const channel of channels) {
     if (
       channel.parent_id &&
@@ -396,6 +406,13 @@ export async function getDailyChannelMessages(
       );
       continue;
     }
+
+    if (fetchedCount >= MAX_CHANNELS) {
+      skippedChannels.push({ id: channel.id, name: channel.name });
+      continue;
+    }
+
+    fetchedCount++;
 
     console.log(
       chalk.blue(
@@ -466,34 +483,40 @@ export async function getDailyChannelMessages(
     }
   }
 
-  return result;
+  if (skippedChannels.length > 0) {
+    console.log(
+      chalk.yellow(
+        `⚠️  Skipped ${chalk.bold(skippedChannels.length)} channels (MAX_CHANNELS=${MAX_CHANNELS} reached): ${skippedChannels.map((c) => "#" + c.name).join(", ")}`
+      )
+    );
+  }
+
+  return { channels: result, skippedChannels };
 }
 
 /**
  * Helper function to get messages for "yesterday"
  */
 export async function getYesterdayChannelMessages(
-  guildId: string,
   env: Env
-): Promise<DailyChannelMessages> {
+): Promise<DailyChannelResult> {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  return getDailyChannelMessages(guildId, yesterday, env);
+  return getDailyChannelMessages(yesterday, env);
 }
 
 /**
  * Helper function to get messages for a specific date string (YYYY-MM-DD)
  */
 export async function getChannelMessagesByDateString(
-  guildId: string,
   dateString: string,
   env: Env
-): Promise<DailyChannelMessages> {
+): Promise<DailyChannelResult> {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) {
     throw new Error(
       `Invalid date string: ${dateString}. Expected format: YYYY-MM-DD`
     );
   }
-  return getDailyChannelMessages(guildId, date, env);
+  return getDailyChannelMessages(date, env);
 }

@@ -1,4 +1,5 @@
 import { Env } from "../types";
+import { trackedFetch } from "./trackedFetch.js";
 
 /**
  * Sends a message to a specific Discord channel
@@ -22,7 +23,7 @@ export async function sendDiscordMessage(
   content: string,
   env: Env
 ): Promise<any> {
-  const response = await fetch(
+  const response = await trackedFetch(
     `https://discord.com/api/v10/channels/${channelId}/messages`,
     {
       method: "POST",
@@ -68,7 +69,7 @@ export async function sendDiscordEmbed(
   embed: any,
   env: Env
 ): Promise<any> {
-  const response = await fetch(
+  const response = await trackedFetch(
     `https://discord.com/api/v10/channels/${channelId}/messages`,
     {
       method: "POST",

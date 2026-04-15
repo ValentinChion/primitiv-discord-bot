@@ -4,6 +4,7 @@
  */
 
 import chalk from "chalk";
+import { trackedFetch } from "./trackedFetch.js";
 
 /**
  * Claude API request options
@@ -132,7 +133,7 @@ export async function callClaude(
   console.log(chalk.gray(`   Temperature: ${temperature}`));
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await trackedFetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -277,7 +278,7 @@ export async function callClaudeStreaming(
   console.log(chalk.cyan(`\n🤖 Calling Claude API (streaming)...`));
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await trackedFetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
