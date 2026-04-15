@@ -12,7 +12,7 @@ import {
 } from "./surveys.js";
 import { trackedFetch } from "./trackedFetch.js";
 
-const MAX_CHANNELS = 45;
+const MAX_CHANNELS = 40;
 
 const CATEGORIES_EXCLUDE = [
   "994894044570329099",
@@ -60,6 +60,7 @@ interface DiscordChannel {
   parent_id?: string;
   name: string;
   type: number;
+  last_message_id?: string | null;
 }
 
 /**
@@ -93,6 +94,12 @@ interface DiscordUser {
 interface DiscordGuildMember {
   user: DiscordUser;
   nick?: string;
+}
+
+const DISCORD_EPOCH = 1420070400000n;
+
+function snowflakeToTimestamp(snowflake: string): number {
+  return Number((BigInt(snowflake) >> 22n) + DISCORD_EPOCH);
 }
 
 /**
@@ -404,6 +411,17 @@ export async function getDailyChannelMessages(
       console.log(
         chalk.gray(`ℹ️ Skipping #${channel.name} (excluded category)`)
       );
+      continue;
+    }
+
+    // Skip channels whose last message is outside the target date window (free pre-filter via snowflake)
+    if (!channel.last_message_id) {
+      console.log(chalk.gray(`ℹ️ Skipping #${channel.name} (no messages ever)`));
+      continue;
+    }
+    const lastMessageTs = snowflakeToTimestamp(channel.last_message_id);
+    if (lastMessageTs < startOfDay.getTime() || lastMessageTs >= endOfDay.getTime()) {
+      console.log(chalk.gray(`ℹ️ Skipping #${channel.name} (no activity in target window)`));
       continue;
     }
 
