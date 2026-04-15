@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,21 +13,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PRIMITIV: Suivis Financier",
-  description: "Dashboard de suivi des demandes et paiements financiers",
+  title: "PRIMITIV",
+  description: "PRIMITIV",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Navbar />
+    <html lang="fr">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>
     </html>

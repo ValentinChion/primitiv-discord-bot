@@ -22,7 +22,7 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href="/demandes">
+              <Link href="/primitiv/demande">
                 <Button className="w-full">
                   Voir les demandes
                 </Button>

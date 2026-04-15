@@ -11,10 +11,16 @@ export function Navbar() {
             </Link>
             <div className="flex gap-6">
               <Link
-                href="/demandes"
+                href="/primitiv/demande"
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 Demandes
+              </Link>
+              <Link
+                href="/primitiv/schedule-handler"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Schedule
               </Link>
             </div>
           </div>
