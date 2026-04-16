@@ -50,12 +50,24 @@ Entry point: `bot/src/index.ts` — HTTP handler that receives Discord interacti
 
 The bot uses **Discord Interactions API** (HTTP-based), not a WebSocket gateway — no persistent connection needed. Handlers are lazy-loaded to avoid unnecessary DB connections on health check requests.
 
+**Subrequest limit:** Cloudflare Workers free tier allows max **50 outbound HTTP requests** per invocation. The daily report pre-filters inactive channels via `last_message_id` snowflake decoding and hard-caps at `MAX_CHANNELS = 40` to stay within this limit. All outbound calls go through `trackedFetch` for visibility.
+
 ### Dashboard (Next.js 16)
 
-- `/demandes` — Table of all financial requests with inline status updates
-- `/paiements` — Table of payments with Google Drive invoice links
-- API routes: `app/api/demandes/route.ts`, `app/api/paiements/route.ts`
-- UI built with Shadcn (new-york theme, zinc base color, lucide icons) + Tailwind CSS v4
+Route layout uses a `(admin)` route group so `/schedule` has no Navbar while all admin pages share one via `app/(admin)/layout.tsx`.
+
+**Admin routes** (with Navbar):
+- `/primitiv` — Home / landing page
+- `/primitiv/demande` — Table of all financial requests with inline status updates
+- `/primitiv/paiements` — Table of payments with Google Drive invoice links
+- `/primitiv/schedule-handler` — CRUD admin for Ekotone festival schedule slots
+
+**Public routes** (no Navbar):
+- `/schedule` — Public festival schedule page (no auth, fetches from `/api/schedule`)
+
+API routes: `app/api/demandes/`, `app/api/paiements/`, `app/api/schedule/`, `app/api/schedule/[id]/`
+
+UI built with Shadcn (new-york theme, zinc base color, lucide icons) + Tailwind CSS v4. The `/schedule` page uses fully custom CSS (no Shadcn) with inline `<style>` tags (required because it's a `"use client"` component — `next/font` doesn't work there).
 
 ### Database (Prisma + PostgreSQL)
 
@@ -64,8 +76,11 @@ Schema lives in both `bot/prisma/schema.prisma` and `dashboard/prisma/schema.pri
 Key models:
 - `Demande` — Financial request with status (PENDING, VALIDATED, DENIED) and type (DEMANDE, PAIEMENT, REMBOURSEMENT)
 - `Paiement` — Payment record, linked to a Demande
+- `Slot` — Ekotone festival schedule slot with `Day` (FRIDAY/SATURDAY/SUNDAY), `Stage` (MAIN/AFTER), `startTime`/`endTime` (DateTime), `artistName`, `note`
 
 **Important:** The bot uses `@prisma/extension-accelerate` because Cloudflare Workers require Prisma Accelerate for connection pooling. The dashboard can use a standard `DATABASE_URL`. These are different npm packages (`@prisma/extension-accelerate@1.2.1` vs `@prisma/extension-accelerate@2.0.2`).
+
+**Schema changes (dashboard):** `prisma migrate dev` will fail with "drift detected" because the remote DB has migrations not present locally. Use `prisma db push` instead to sync the schema directly.
 
 ### Services (`bot/src/services/`)
 
@@ -77,6 +92,7 @@ Key models:
 | `storage.ts` | Upload files to Cloudflare R2, download from Discord CDN |
 | `sendMessage.ts` | Send/edit Discord messages |
 | `surveys.ts` | Survey handling |
+| `trackedFetch.ts` | `fetch()` wrapper that logs `[Subrequest #N] METHOD URL` and counts outbound HTTP calls |
 
 ## Environment Variables
 
@@ -97,6 +113,6 @@ DATABASE_URL                 # Standard PostgreSQL URL
 ## TypeScript Configuration
 
 - **Bot:** `ES2022` target, `bundler` module resolution (Cloudflare Workers compatible)
-- **Dashboard:** `ES2017` target, `DOM` libs, path alias `@/*` → `./src/*`
+- **Dashboard:** `ES2017` target, `DOM` libs, path alias `@/*` → `./*`
 - Both use strict TypeScript
 - Dashboard's `next.config.ts` has `ignoreBuildErrors: true` and `ignoreDuringBuilds: true` — type errors won't fail the build
