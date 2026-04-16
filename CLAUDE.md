@@ -32,6 +32,7 @@ npm run test:cron         # Manually trigger the cron job
 npm run dev          # Next.js development server
 npm run build        # Generate Prisma client + Next.js production build
 npm run lint         # ESLint
+npm run typecheck    # tsc --noEmit — also runs automatically on every file save via .claude/settings.json hooks
 npm run prisma:generate  # Regenerate Prisma client
 npm run prisma:migrate   # Apply migrations (dev) — will fail if DB has drift; use `npx prisma db push` instead
 npm run prisma:studio    # Open Prisma data browser
@@ -67,7 +68,7 @@ Route layout uses a `(admin)` route group so `/schedule` has no Navbar while all
 
 API routes: `app/api/demandes/`, `app/api/paiements/`, `app/api/schedule/`, `app/api/schedule/[id]/`
 
-UI built with Shadcn (new-york theme, zinc base color, lucide icons) + Tailwind CSS v4. The `/schedule` page uses fully custom CSS (no Shadcn) with inline `<style>` tags (required because it's a `"use client"` component — `next/font` doesn't work there).
+UI built with Shadcn (new-york theme, zinc base color, lucide icons) + Tailwind CSS v4. The `/schedule` page uses Tailwind utilities with custom tokens defined in the `@theme inline` block of `globals.css` (colors `acid`, `sch-bg`, `sch-text`, `sch-muted`, `sch-border`; fonts `bebas`, `mono-share`, `barlow`). No Shadcn on that page. External fonts loaded via `<link>` tags in `app/layout.tsx` — do NOT use `@import url(...)` in `globals.css`; Tailwind's inline expansion pushes it past the CSS spec's "imports must precede all rules" requirement, causing a parse error.
 
 ### Database (Prisma + PostgreSQL)
 
