@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { InstallPrompt } from "@/components/install-prompt";
 
 type Day = "FRIDAY" | "SATURDAY" | "SUNDAY";
 type Stage = "MAIN" | "AFTER";
@@ -235,6 +234,11 @@ export default function SchedulePage() {
                   {" · "}
                   {nowSlot.stage === "MAIN" ? "Main Stage" : "After"}
                 </p>
+                {nowSlot.description && (
+                  <p className="font-barlow font-light text-[1rem] leading-relaxed text-sch-text/80 mt-6 max-w-prose">
+                    {nowSlot.description}
+                  </p>
+                )}
               </div>
             ) : (
               /* Entre deux sets */
@@ -427,7 +431,6 @@ export default function SchedulePage() {
           PRIMITIV · EKOTONE · 2026
         </footer>
       </div>
-      <InstallPrompt />
 
       {/* Bottom Nav */}
       <nav
