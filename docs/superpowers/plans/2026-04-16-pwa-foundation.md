@@ -221,11 +221,15 @@ git commit -m "feat(pwa): add service worker tsconfig with WebWorker lib"
 **Files:**
 - Create: `dashboard/app/sw.ts`
 
-Caching strategy:
+Caching strategy — **offline-first throughout**. Every response is served from cache immediately; the network is used only to refresh the cache in the background. The offline fallback page is only reached on first-ever visit with no connectivity.
+
 - **Precache**: all Next.js static assets (JS chunks, CSS) — serwist handles this via `__SW_MANIFEST`
 - **`/api/schedule`**: `StaleWhileRevalidate` — show cached schedule instantly, refresh in background
 - **Images (R2)**: `CacheFirst` with 30-day expiry — artist photos don't change
-- **Navigation (HTML)**: `NetworkFirst` with offline fallback to `/offline`
+- **Google Fonts**: `CacheFirst` with 1-year expiry
+- **Navigation (HTML pages)**: `StaleWhileRevalidate` — serve cached page shell instantly, update in background. Never wait for the network. Falls back to `/offline` only when there is nothing in the cache at all (first visit with no connectivity).
+
+Note: `navigationPreload` is intentionally disabled. It is only useful with `NetworkFirst` (it prefetches the navigation response from the network in parallel with SW startup). With `StaleWhileRevalidate` we always serve from cache first, so there is nothing to preload.
 
 - [ ] **Step 1: Create the service worker**
 
@@ -235,7 +239,6 @@ import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
 import {
   CacheFirst,
   ExpirationPlugin,
-  NetworkFirst,
   Serwist,
   StaleWhileRevalidate,
 } from "serwist";
@@ -252,9 +255,9 @@ const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
   clientsClaim: true,
-  navigationPreload: true,
+  navigationPreload: false,
   runtimeCaching: [
-    // Schedule API: serve stale, refresh in background
+    // Schedule API: serve stale immediately, refresh in background
     {
       matcher: /\/api\/schedule/,
       handler: new StaleWhileRevalidate({
@@ -272,7 +275,7 @@ const serwist = new Serwist({
         ],
       }),
     },
-    // Google Fonts: cache-first
+    // Google Fonts: cache forever
     {
       matcher: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
       handler: new CacheFirst({
@@ -280,13 +283,12 @@ const serwist = new Serwist({
         plugins: [new ExpirationPlugin({ maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 })],
       }),
     },
-    // All navigation requests: try network, fall back to cached page or /offline
+    // Navigation (HTML): serve cached page shell instantly, update in background
     {
       matcher: ({ request }) => request.mode === "navigate",
-      handler: new NetworkFirst({
+      handler: new StaleWhileRevalidate({
         cacheName: "pages",
-        networkTimeoutSeconds: 5,
-        plugins: [new ExpirationPlugin({ maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 })],
+        plugins: [new ExpirationPlugin({ maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 7 })],
       }),
     },
   ],
