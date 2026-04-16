@@ -16,14 +16,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { stage, day, startTime, endTime, artistName, note } = body;
+    const { stage, day, startTime, endTime, artistName, note, description, imageUrl } = body;
 
     if (!stage || !day || !startTime || !endTime || !artistName) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const slot = await prisma.slot.create({
-      data: { stage, day, startTime: new Date(startTime), endTime: new Date(endTime), artistName, note },
+      data: { stage, day, startTime: new Date(startTime), endTime: new Date(endTime), artistName, note, description, imageUrl },
     });
     return NextResponse.json(slot, { status: 201 });
   } catch (error) {

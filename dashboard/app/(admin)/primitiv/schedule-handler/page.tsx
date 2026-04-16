@@ -2,15 +2,28 @@
 
 import { useEffect, useState } from "react";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Pencil, Plus } from "lucide-react";
@@ -26,9 +39,20 @@ interface Slot {
   endTime: string;
   artistName: string;
   note: string | null;
+  description: string | null;
+  imageUrl: string | null;
 }
 
-const EMPTY_FORM = { stage: "MAIN" as Stage, day: "FRIDAY" as Day, startTime: "", endTime: "", artistName: "", note: "" };
+const EMPTY_FORM = {
+  stage: "MAIN" as Stage,
+  day: "FRIDAY" as Day,
+  startTime: "",
+  endTime: "",
+  artistName: "",
+  note: "",
+  description: "",
+  imageUrl: "",
+};
 
 const DAY_ORDER: Record<Day, number> = { FRIDAY: 0, SATURDAY: 1, SUNDAY: 2 };
 
@@ -50,16 +74,28 @@ export default function ScheduleHandlerPage() {
   const [editingSlot, setEditingSlot] = useState<Slot | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
 
-  useEffect(() => { fetchSlots(); }, []);
+  useEffect(() => {
+    fetchSlots();
+  }, []);
 
   const fetchSlots = async () => {
     const res = await fetch("/api/schedule");
     const data = await res.json();
-    setSlots(data.sort((a: Slot, b: Slot) => DAY_ORDER[a.day] - DAY_ORDER[b.day] || new Date(a.startTime).getTime() - new Date(b.startTime).getTime()));
+    setSlots(
+      data.sort(
+        (a: Slot, b: Slot) =>
+          DAY_ORDER[a.day] - DAY_ORDER[b.day] ||
+          new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+      ),
+    );
     setLoading(false);
   };
 
-  const openAdd = () => { setEditingSlot(null); setForm(EMPTY_FORM); setDialogOpen(true); };
+  const openAdd = () => {
+    setEditingSlot(null);
+    setForm(EMPTY_FORM);
+    setDialogOpen(true);
+  };
   const openEdit = (slot: Slot) => {
     setEditingSlot(slot);
     setForm({
@@ -69,13 +105,17 @@ export default function ScheduleHandlerPage() {
       endTime: toTimeStr(slot.endTime),
       artistName: slot.artistName,
       note: slot.note ?? "",
+      description: slot.description ?? "",
+      imageUrl: slot.imageUrl ?? "",
     });
     setDialogOpen(true);
   };
 
   const saveSlot = async () => {
     const method = editingSlot ? "PUT" : "POST";
-    const url = editingSlot ? `/api/schedule/${editingSlot.id}` : "/api/schedule";
+    const url = editingSlot
+      ? `/api/schedule/${editingSlot.id}`
+      : "/api/schedule";
     await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
@@ -84,6 +124,8 @@ export default function ScheduleHandlerPage() {
         startTime: `${DAY_DATES[form.day]}T${form.startTime}`,
         endTime: `${DAY_DATES[form.day]}T${form.endTime}`,
         note: form.note || null,
+        description: form.description || null,
+        imageUrl: form.imageUrl || null,
       }),
     });
     setDialogOpen(false);
@@ -96,9 +138,13 @@ export default function ScheduleHandlerPage() {
   };
 
   const formatTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    new Date(iso).toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-  if (loading) return <div className="container mx-auto p-6">Chargement...</div>;
+  if (loading)
+    return <div className="container mx-auto p-6">Chargement...</div>;
 
   return (
     <div className="container mx-auto p-6">
@@ -107,17 +153,27 @@ export default function ScheduleHandlerPage() {
           <CardTitle className="text-2xl">Programme — Ekotone</CardTitle>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openAdd}><Plus className="h-4 w-4 mr-2" />Ajouter un set</Button>
+              <Button onClick={openAdd}>
+                <Plus className="h-4 w-4 mr-2" />
+                Ajouter un set
+              </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingSlot ? "Modifier le set" : "Ajouter un set"}</DialogTitle>
+                <DialogTitle>
+                  {editingSlot ? "Modifier le set" : "Ajouter un set"}
+                </DialogTitle>
               </DialogHeader>
               <div className="flex flex-col gap-4 pt-2">
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium">Jour</label>
-                  <Select value={form.day} onValueChange={(v) => setForm({ ...form, day: v as Day })}>
-                    <SelectTrigger><SelectValue placeholder="Jour" /></SelectTrigger>
+                  <Select
+                    value={form.day}
+                    onValueChange={(v) => setForm({ ...form, day: v as Day })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Jour" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="FRIDAY">Vendredi</SelectItem>
                       <SelectItem value="SATURDAY">Samedi</SelectItem>
@@ -127,8 +183,15 @@ export default function ScheduleHandlerPage() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium">Scène</label>
-                  <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v as Stage })}>
-                    <SelectTrigger><SelectValue placeholder="Scène" /></SelectTrigger>
+                  <Select
+                    value={form.stage}
+                    onValueChange={(v) =>
+                      setForm({ ...form, stage: v as Stage })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Scène" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="MAIN">Main Stage</SelectItem>
                       <SelectItem value="AFTER">After</SelectItem>
@@ -137,19 +200,84 @@ export default function ScheduleHandlerPage() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium">Heure de début</label>
-                  <Input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} />
+                  <Input
+                    type="time"
+                    value={form.startTime}
+                    onChange={(e) =>
+                      setForm({ ...form, startTime: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium">Heure de fin</label>
-                  <Input type="time" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} />
+                  <Input
+                    type="time"
+                    value={form.endTime}
+                    onChange={(e) =>
+                      setForm({ ...form, endTime: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium">Nom de l&apos;artiste</label>
-                  <Input value={form.artistName} onChange={(e) => setForm({ ...form, artistName: e.target.value })} placeholder="Nom de l'artiste" />
+                  <label className="text-sm font-medium">
+                    Nom de l&apos;artiste
+                  </label>
+                  <Input
+                    value={form.artistName}
+                    onChange={(e) =>
+                      setForm({ ...form, artistName: e.target.value })
+                    }
+                    placeholder="Nom de l'artiste"
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium">Note / genre</label>
-                  <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="Note / genre (optionnel)" />
+                  <Input
+                    value={form.note}
+                    onChange={(e) => setForm({ ...form, note: e.target.value })}
+                    placeholder="Note / genre (optionnel)"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Image de l&apos;artiste</label>
+                  {form.imageUrl && (
+                    <img
+                      src={form.imageUrl}
+                      alt="preview"
+                      className="w-full h-32 object-cover rounded mb-1"
+                    />
+                  )}
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const fd = new FormData();
+                      fd.append("file", file);
+                      const res = await fetch("/api/upload", { method: "POST", body: fd });
+                      const { url } = await res.json();
+                      setForm((prev) => ({ ...prev, imageUrl: url }));
+                    }}
+                  />
+                  {form.imageUrl && (
+                    <button
+                      type="button"
+                      className="text-xs text-muted-foreground text-left"
+                      onClick={() => setForm((prev) => ({ ...prev, imageUrl: "" }))}
+                    >
+                      Supprimer l&apos;image
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Description</label>
+                  <textarea
+                    className="border rounded px-3 py-2 text-sm min-h-[80px] bg-background"
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    placeholder="Description de l'artiste (optionnel)"
+                  />
                 </div>
                 <Button onClick={saveSlot}>Enregistrer</Button>
               </div>
@@ -171,23 +299,53 @@ export default function ScheduleHandlerPage() {
             </TableHeader>
             <TableBody>
               {slots.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center py-8">Aucun set pour le moment</TableCell></TableRow>
-              ) : slots.map((slot) => (
-                <TableRow key={slot.id}>
-                  <TableCell>{slot.day === "FRIDAY" ? "Vendredi" : slot.day === "SATURDAY" ? "Samedi" : "Dimanche"}</TableCell>
-                  <TableCell>{slot.stage === "MAIN" ? "Main Stage" : "After"}</TableCell>
-                  <TableCell>{formatTime(slot.startTime)}</TableCell>
-                  <TableCell>{formatTime(slot.endTime)}</TableCell>
-                  <TableCell className="font-medium">{slot.artistName}</TableCell>
-                  <TableCell className="text-muted-foreground text-sm">{slot.note ?? "—"}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="icon" onClick={() => openEdit(slot)}><Pencil className="h-4 w-4" /></Button>
-                      <Button variant="destructive" size="icon" onClick={() => deleteSlot(slot.id)}><Trash2 className="h-4 w-4" /></Button>
-                    </div>
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8">
+                    Aucun set pour le moment
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                slots.map((slot) => (
+                  <TableRow key={slot.id}>
+                    <TableCell>
+                      {slot.day === "FRIDAY"
+                        ? "Vendredi"
+                        : slot.day === "SATURDAY"
+                          ? "Samedi"
+                          : "Dimanche"}
+                    </TableCell>
+                    <TableCell>
+                      {slot.stage === "MAIN" ? "Main Stage" : "After"}
+                    </TableCell>
+                    <TableCell>{formatTime(slot.startTime)}</TableCell>
+                    <TableCell>{formatTime(slot.endTime)}</TableCell>
+                    <TableCell className="font-medium">
+                      {slot.artistName}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {slot.note ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => openEdit(slot)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => deleteSlot(slot.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>

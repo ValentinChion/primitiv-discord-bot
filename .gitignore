@@ -1,6 +1,8 @@
 
 node_modules/
 dist/
+.open-next/
+.playwright-mcp/
 *.log
 *.pid
 

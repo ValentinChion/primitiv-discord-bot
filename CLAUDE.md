@@ -77,7 +77,7 @@ Schema lives in both `bot/prisma/schema.prisma` and `dashboard/prisma/schema.pri
 Key models:
 - `Demande` — Financial request with status (PENDING, VALIDATED, DENIED) and type (DEMANDE, PAIEMENT, REMBOURSEMENT)
 - `Paiement` — Payment record, linked to a Demande
-- `Slot` — Ekotone festival schedule slot with `Day` (FRIDAY/SATURDAY/SUNDAY), `Stage` (MAIN/AFTER), `startTime`/`endTime` (DateTime), `artistName`, `note`
+- `Slot` — Ekotone festival schedule slot with `Day` (FRIDAY/SATURDAY/SUNDAY), `Stage` (MAIN/AFTER), `startTime`/`endTime` (DateTime), `artistName`, `note`, `description`, `imageUrl` (uploaded to R2 via `/api/upload`)
 
 **Important:** The bot uses `@prisma/extension-accelerate` because Cloudflare Workers require Prisma Accelerate for connection pooling. The dashboard can use a standard `DATABASE_URL`. These are different npm packages (`@prisma/extension-accelerate@1.2.1` vs `@prisma/extension-accelerate@2.0.2`).
 
@@ -109,6 +109,11 @@ ANTHROPIC_API_KEY            # Optional, for daily report analysis
 ### Dashboard (`.env`)
 ```
 DATABASE_URL                 # Standard PostgreSQL URL
+R2_ACCOUNT_ID                # Cloudflare account ID (for artist image uploads)
+R2_ACCESS_KEY_ID             # R2 API token key ID
+R2_SECRET_ACCESS_KEY         # R2 API token secret
+R2_BUCKET_NAME               # R2 bucket name
+R2_PUBLIC_URL                # Public base URL of the R2 bucket (same as bot's R2_PUBLIC_URL)
 ```
 
 ## TypeScript Configuration

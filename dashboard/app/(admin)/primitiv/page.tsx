@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function Home() {
   return (
@@ -18,14 +24,13 @@ export default function Home() {
             <CardHeader>
               <CardTitle>Demandes</CardTitle>
               <CardDescription>
-                Suivre et gérer toutes les demandes financières avec mise à jour des statuts
+                Suivre et gérer toutes les demandes financières avec mise à jour
+                des statuts
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Link href="/primitiv/demande">
-                <Button className="w-full">
-                  Voir les demandes
-                </Button>
+                <Button className="w-full">Voir les demandes</Button>
               </Link>
             </CardContent>
           </Card>
@@ -33,7 +38,10 @@ export default function Home() {
 
         <div className="mt-12 text-sm text-muted-foreground space-y-2">
           <p className="font-medium">Technologies utilisées:</p>
-          <p>Next.js 16 • TypeScript • Tailwind CSS • Shadcn UI • Prisma • PostgreSQL</p>
+          <p>
+            Next.js 16 • TypeScript • Tailwind CSS • Shadcn UI • Prisma •
+            PostgreSQL
+          </p>
         </div>
       </div>
     </div>

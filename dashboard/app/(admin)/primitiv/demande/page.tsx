@@ -64,7 +64,9 @@ export default function DemandesPage() {
       const data = await response.json();
       setDemandes(data);
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "An error occurred");
+      setErrorMessage(
+        error instanceof Error ? error.message : "An error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -72,7 +74,9 @@ export default function DemandesPage() {
 
   const deleteDemande = async (id: number) => {
     try {
-      const response = await fetch(`/api/demandes?id=${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/demandes?id=${id}`, {
+        method: "DELETE",
+      });
       if (!response.ok) throw new Error("Failed to delete demande");
       setDemandes((prev) => prev.filter((d) => d.id !== id));
     } catch (error) {
@@ -94,7 +98,7 @@ export default function DemandesPage() {
 
       // Update local state
       setDemandes((prev) =>
-        prev.map((d) => (d.id === id ? { ...d, statut } : d))
+        prev.map((d) => (d.id === id ? { ...d, statut } : d)),
       );
     } catch (error) {
       console.error("Error updating statut:", error);
@@ -154,11 +158,15 @@ export default function DemandesPage() {
                 ) : (
                   demandes.map((demande) => (
                     <TableRow key={demande.id}>
-                      <TableCell className="font-medium">{demande.id}</TableCell>
+                      <TableCell className="font-medium">
+                        {demande.id}
+                      </TableCell>
                       <TableCell>{demande.name}</TableCell>
                       <TableCell>
                         {demande.discordUsername ?? (
-                          <span className="font-mono text-xs text-muted-foreground">{demande.userId}</span>
+                          <span className="font-mono text-xs text-muted-foreground">
+                            {demande.userId}
+                          </span>
                         )}
                       </TableCell>
                       <TableCell className="font-semibold">
@@ -167,7 +175,7 @@ export default function DemandesPage() {
                       <TableCell>
                         <span
                           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatutBadgeColor(
-                            demande.statut
+                            demande.statut,
                           )}`}
                         >
                           {demande.statut}
@@ -178,15 +186,25 @@ export default function DemandesPage() {
                       </TableCell>
                       <TableCell>
                         {demande.factureUrl ? (
-                          <a href={demande.factureUrl} target="_blank" rel="noopener noreferrer">
-                            <Button variant="outline" size="sm">Voir</Button>
+                          <a
+                            href={demande.factureUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Button variant="outline" size="sm">
+                              Voir
+                            </Button>
                           </a>
                         ) : (
-                          <span className="text-muted-foreground text-sm">—</span>
+                          <span className="text-muted-foreground text-sm">
+                            —
+                          </span>
                         )}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
-                        {new Date(demande.createdAt).toLocaleDateString("fr-FR")}
+                        {new Date(demande.createdAt).toLocaleDateString(
+                          "fr-FR",
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -201,7 +219,9 @@ export default function DemandesPage() {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="PENDING">PENDING</SelectItem>
-                              <SelectItem value="VALIDATED">VALIDATED</SelectItem>
+                              <SelectItem value="VALIDATED">
+                                VALIDATED
+                              </SelectItem>
                               <SelectItem value="DENIED">DENIED</SelectItem>
                             </SelectContent>
                           </Select>

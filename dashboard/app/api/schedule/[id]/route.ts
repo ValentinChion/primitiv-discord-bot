@@ -5,7 +5,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { id } = await params;
     const body = await request.json();
-    const { stage, day, startTime, endTime, artistName, note } = body;
+    const { stage, day, startTime, endTime, artistName, note, description, imageUrl } = body;
 
     const slot = await prisma.slot.update({
       where: { id },
@@ -16,6 +16,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         endTime: endTime ? new Date(endTime) : undefined,
         artistName,
         note,
+        description,
+        imageUrl,
       },
     });
     return NextResponse.json(slot);
