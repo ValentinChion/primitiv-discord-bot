@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { webpush } from "@/lib/webpush";
+import { sendWebPushNotification } from "@/lib/webpush-worker";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     await Promise.all(
       subscriptions.map(async (sub) => {
         try {
-          await webpush.sendNotification(
+          await sendWebPushNotification(
             { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
             JSON.stringify({ title, body, url: url ?? "/schedule" }),
           );
@@ -31,6 +31,9 @@ export async function POST(req: NextRequest) {
         } catch (err: unknown) {
           failed++;
           const status = (err as { statusCode?: number }).statusCode;
+
+          console.error(err)
+
           if (status === 404 || status === 410) {
             expiredEndpoints.push(sub.endpoint);
           }

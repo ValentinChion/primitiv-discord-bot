@@ -1,52 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-type Statut = "PENDING" | "VALIDATED" | "DENIED";
-
-interface Demande {
-  id: number;
-  name: string;
-  userId: string;
-  discordUsername: string | null;
-  montant: number;
-  description: string;
-  statut: Statut;
-  createdAt: string;
-  factureUrl: string | null;
-}
-
-const getStatutBadgeColor = (statut: Statut) => {
-  switch (statut) {
-    case "VALIDATED": {
-      return "text-green-700 bg-green-100";
-    }
-    case "DENIED": {
-      return "text-red-700 bg-red-100";
-    }
-    case "PENDING": {
-      return "text-yellow-700 bg-yellow-100";
-    }
-  }
-};
+import {
+  DemandesTable,
+  Demande,
+  Statut,
+} from "@/features/demandes/demandes-table";
 
 export default function DemandesPage() {
   const [demandes, setDemandes] = useState<Demande[]>([]);
@@ -88,15 +48,10 @@ export default function DemandesPage() {
     try {
       const response = await fetch("/api/demandes", {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, statut }),
       });
-
       if (!response.ok) throw new Error("Failed to update demande");
-
-      // Update local state
       setDemandes((prev) =>
         prev.map((d) => (d.id === id ? { ...d, statut } : d)),
       );
@@ -133,113 +88,11 @@ export default function DemandesPage() {
           <CardTitle className="text-2xl">Demandes Financières</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Utilisateur</TableHead>
-                  <TableHead>Montant</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Facture</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {demandes.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
-                      Aucune demande trouvée
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  demandes.map((demande) => (
-                    <TableRow key={demande.id}>
-                      <TableCell className="font-medium">
-                        {demande.id}
-                      </TableCell>
-                      <TableCell>{demande.name}</TableCell>
-                      <TableCell>
-                        {demande.discordUsername ?? (
-                          <span className="font-mono text-xs text-muted-foreground">
-                            {demande.userId}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="font-semibold">
-                        {demande.montant.toFixed(2)} €
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatutBadgeColor(
-                            demande.statut,
-                          )}`}
-                        >
-                          {demande.statut}
-                        </span>
-                      </TableCell>
-                      <TableCell className="max-w-xs truncate">
-                        {demande.description}
-                      </TableCell>
-                      <TableCell>
-                        {demande.factureUrl ? (
-                          <a
-                            href={demande.factureUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <Button variant="outline" size="sm">
-                              Voir
-                            </Button>
-                          </a>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">
-                            —
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {new Date(demande.createdAt).toLocaleDateString(
-                          "fr-FR",
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Select
-                            value={demande.statut}
-                            onValueChange={(value) =>
-                              updateStatut(demande.id, value as Statut)
-                            }
-                          >
-                            <SelectTrigger className="w-32">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="PENDING">PENDING</SelectItem>
-                              <SelectItem value="VALIDATED">
-                                VALIDATED
-                              </SelectItem>
-                              <SelectItem value="DENIED">DENIED</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => deleteDemande(demande.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+          <DemandesTable
+            demandes={demandes}
+            onDelete={deleteDemande}
+            onUpdateStatut={updateStatut}
+          />
         </CardContent>
       </Card>
     </div>

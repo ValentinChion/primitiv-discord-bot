@@ -1,30 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { NowView, Slot } from "@/features/schedule/now-view";
+import { SlotDetail } from "@/features/schedule/slot-detail";
+import { SlotList } from "@/features/schedule/slot-list";
 
 type Day = "FRIDAY" | "SATURDAY" | "SUNDAY";
 type Stage = "MAIN" | "AFTER";
 type View = "now" | "schedule";
-
-interface Slot {
-  id: string;
-  stage: Stage;
-  day: Day;
-  startTime: string;
-  endTime: string;
-  artistName: string;
-  note: string | null;
-  description: string | null;
-  imageUrl: string | null;
-}
 
 const DAYS: { key: Day; label: string }[] = [
   { key: "FRIDAY", label: "Vendredi" },
   { key: "SATURDAY", label: "Samedi" },
   { key: "SUNDAY", label: "Dimanche" },
 ];
-
-const DELAYS = [0.03, 0.07, 0.11, 0.15, 0.19, 0.22, 0.25];
 
 const FESTIVAL_START = new Date("2026-05-29T00:00:00");
 const FESTIVAL_END = new Date("2026-06-01T00:00:00");
@@ -91,7 +80,6 @@ export default function SchedulePage() {
   };
 
   const nowSlot = slots.find(isPlaying) ?? null;
-
   const nextSlot =
     slots
       .filter((s) => new Date(s.startTime).getTime() > now.getTime())
@@ -205,81 +193,13 @@ export default function SchedulePage() {
               Chargement...
             </div>
           ) : view === "now" ? (
-            nowSlot ? (
-              /* Artiste en cours */
-              <div className="px-5 pt-8 pb-10 animate-fadein">
-                {nowSlot.imageUrl && (
-                  <div className="w-full aspect-video md:aspect-[3/1] overflow-hidden mb-6 relative rounded-sm">
-                    <img
-                      src={nowSlot.imageUrl}
-                      alt={nowSlot.artistName}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-sch-bg to-transparent" />
-                  </div>
-                )}
-                {nowSlot.note && (
-                  <div className="font-mono-share text-[0.62rem] tracking-[0.18em] uppercase text-sch-muted mb-3">
-                    {nowSlot.note}
-                  </div>
-                )}
-                <h2
-                  onClick={() => { setSelectedSlot(nowSlot); setView("schedule"); }}
-                  className="font-bebas text-[clamp(3rem,14vw,6rem)] leading-[0.88] text-acid tracking-[0.01em] cursor-pointer hover:opacity-80 transition-opacity"
-                >
-                  {nowSlot.artistName}
-                </h2>
-                <p className="font-mono-share text-[0.7rem] tracking-[0.12em] text-sch-muted uppercase mt-2">
-                  {fmt(nowSlot.startTime)} — {fmt(nowSlot.endTime)}
-                  {" · "}
-                  {nowSlot.stage === "MAIN" ? "Main Stage" : "After"}
-                </p>
-                {nowSlot.description && (
-                  <p className="font-barlow font-light text-[1rem] leading-relaxed text-sch-text/80 mt-6 max-w-prose">
-                    {nowSlot.description}
-                  </p>
-                )}
-              </div>
-            ) : (
-              /* Entre deux sets */
-              <div className="px-5 flex flex-col items-center justify-center min-h-[60vh] animate-fadein text-center">
-                <div className="flex items-center gap-3 mb-10">
-                  <span className="block w-12 h-px bg-sch-border" />
-                  <span className="font-mono-share text-[0.55rem] tracking-[0.35em] text-sch-muted uppercase">
-                    Pause
-                  </span>
-                  <span className="block w-12 h-px bg-sch-border" />
-                </div>
-                <h2 className="font-bebas text-[clamp(3.5rem,18vw,7rem)] leading-[0.88] text-sch-text/20 tracking-[0.02em] uppercase select-none mb-1">
-                  Entre
-                </h2>
-                <h2 className="font-bebas text-[clamp(3.5rem,18vw,7rem)] leading-[0.88] text-sch-text/20 tracking-[0.02em] uppercase select-none">
-                  Deux Sets
-                </h2>
-                {nextSlot && (
-                  <div className="mt-12 border border-sch-border px-6 py-5 max-w-xs w-full text-left">
-                    <p className="font-mono-share text-[0.55rem] tracking-[0.3em] text-sch-muted uppercase mb-3">
-                      Prochain set
-                    </p>
-                    <p className="font-bebas text-[clamp(1.8rem,8vw,2.6rem)] leading-[0.9] text-sch-text tracking-[0.01em]">
-                      {nextSlot.artistName}
-                    </p>
-                    {nextSlot.note && (
-                      <p className="font-mono-share text-[0.58rem] tracking-[0.12em] uppercase text-sch-muted mt-1">
-                        {nextSlot.note}
-                      </p>
-                    )}
-                    <p className="font-mono-share text-[0.62rem] tracking-[0.1em] text-acid mt-3">
-                      {fmt(nextSlot.startTime)}
-                      {" · "}
-                      {nextSlot.stage === "MAIN" ? "Main Stage" : "After"}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )
+            <NowView
+              nowSlot={nowSlot}
+              nextSlot={nextSlot}
+              fmt={fmt}
+              onSelectSlot={(slot) => { setSelectedSlot(slot); setView("schedule"); }}
+            />
           ) : (
-            /* Vue programme */
             <>
               {/* Stage toggle */}
               <div
@@ -308,120 +228,24 @@ export default function SchedulePage() {
                 })}
               </div>
 
-              {/* Détail artiste */}
               {selectedSlot ? (
-                <div className="animate-fadein">
-                  <button
-                    onClick={() => setSelectedSlot(null)}
-                    className="flex items-center gap-2 px-5 py-4 font-mono-share text-[0.62rem] tracking-[0.2em] uppercase text-sch-muted hover:text-sch-text transition-colors cursor-pointer bg-transparent"
-                  >
-                    <span className="text-[0.8rem]">←</span> Retour
-                  </button>
-
-                  {selectedSlot.imageUrl && (
-                    <div className="w-full aspect-video overflow-hidden relative">
-                      <img
-                        src={selectedSlot.imageUrl}
-                        alt={selectedSlot.artistName}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-sch-bg to-transparent" />
-                    </div>
-                  )}
-
-                  <div className="px-5 pt-6 pb-12">
-                    {selectedSlot.note && (
-                      <p className="font-mono-share text-[0.62rem] tracking-[0.18em] uppercase text-sch-muted mb-3">
-                        {selectedSlot.note}
-                      </p>
-                    )}
-                    <h2 className="font-bebas text-[clamp(3rem,14vw,5.5rem)] leading-[0.88] text-sch-text tracking-[0.01em]">
-                      {selectedSlot.artistName}
-                    </h2>
-                    <p className="font-mono-share text-[0.68rem] tracking-[0.12em] text-sch-muted uppercase mt-3">
-                      {fmt(selectedSlot.startTime)} — {fmt(selectedSlot.endTime)}
-                      {" · "}
-                      {selectedSlot.stage === "MAIN" ? "Main Stage" : "After"}
-                      {" · "}
-                      {dayLabel(selectedSlot.day)}
-                    </p>
-                    {selectedSlot.description && (
-                      <p className="font-barlow font-light text-[1rem] leading-relaxed text-sch-text/80 mt-6 max-w-prose">
-                        {selectedSlot.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
+                <SlotDetail
+                  slot={selectedSlot}
+                  fmt={fmt}
+                  dayLabel={dayLabel}
+                  onBack={() => setSelectedSlot(null)}
+                />
               ) : filtered.length === 0 ? (
                 <div className="font-mono-share text-[0.7rem] tracking-[0.2em] text-sch-muted uppercase text-center py-20 px-5">
                   Aucun set programmé
                 </div>
               ) : (
-                <ul className="list-none px-5 m-0">
-                  {filtered.map((slot, index) => {
-                    const playing = isPlaying(slot);
-                    return (
-                      <li
-                        key={slot.id}
-                        style={{ animationDelay: `${DELAYS[index] ?? 0.27}s` }}
-                        onClick={() => setSelectedSlot(slot)}
-                        className={[
-                          "grid grid-cols-[4.75rem_1fr] gap-x-3.5 py-5 border-b border-sch-border relative animate-fadein cursor-pointer hover:bg-white/[0.02] transition-colors",
-                          playing ? "bg-acid/[0.025]" : "",
-                        ].join(" ")}
-                      >
-                        {playing && (
-                          <span
-                            className="absolute left-[-1.25rem] top-0 bottom-0 w-0.5 bg-acid"
-                            style={{
-                              boxShadow: "0 0 14px 2px rgba(221,255,0,0.35)",
-                            }}
-                          />
-                        )}
-
-                        <div className="pt-1 flex flex-col gap-0.5">
-                          <span className="font-mono-share text-[0.8rem] text-sch-text tracking-[0.04em]">
-                            {fmt(slot.startTime)}
-                          </span>
-                          <span className="font-mono-share text-[0.68rem] text-sch-muted tracking-[0.04em]">
-                            {fmt(slot.endTime)}
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between items-start gap-3">
-                          <div className="min-w-0">
-                            <div
-                              className={[
-                                "font-bebas text-[clamp(2.2rem,9.5vw,3.5rem)] leading-[0.92] tracking-[0.01em] transition-colors duration-200",
-                                playing ? "text-acid" : "text-sch-text",
-                              ].join(" ")}
-                            >
-                              {slot.artistName}
-                            </div>
-                            {slot.note && (
-                              <div className="font-mono-share text-[0.62rem] tracking-[0.12em] uppercase text-sch-muted mt-1">
-                                {slot.note}
-                              </div>
-                            )}
-                            {playing && (
-                              <div className="inline-flex items-center gap-1.5 mt-1.5 font-mono-share text-[0.58rem] tracking-[0.2em] text-acid uppercase">
-                                <span className="w-[5px] h-[5px] rounded-full bg-acid shrink-0 animate-pulse-dot shadow-[0_0_6px_#DDFF00]" />
-                                En cours
-                              </div>
-                            )}
-                          </div>
-                          {slot.imageUrl && (
-                            <img
-                              src={slot.imageUrl}
-                              alt={slot.artistName}
-                              className="w-10 h-10 shrink-0 object-cover rounded-sm opacity-70 self-center"
-                            />
-                          )}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
+                <SlotList
+                  slots={filtered}
+                  isPlaying={isPlaying}
+                  fmt={fmt}
+                  onSelect={setSelectedSlot}
+                />
               )}
             </>
           )}
