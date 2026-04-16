@@ -1,7 +1,34 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;600&display=swap');
 
 @custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-acid: #DDFF00;
+  --color-sch-bg: #080808;
+  --color-sch-text: #EFEFEF;
+  --color-sch-muted: #484848;
+  --color-sch-border: #161616;
+  --font-bebas: 'Bebas Neue', cursive;
+  --font-mono-share: 'Share Tech Mono', monospace;
+  --font-barlow: 'Barlow Condensed', sans-serif;
+  --animate-fadein: sch-fadein 0.35s ease both;
+  --animate-pulse-dot: sch-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes sch-fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sch-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.3; transform: scale(0.65); }
+}
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
 @layer base {
   :root {
