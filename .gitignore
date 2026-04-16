@@ -2,6 +2,7 @@
 node_modules/
 dist/
 .open-next/
+.wrangler/
 .playwright-mcp/
 *.log
 *.pid
