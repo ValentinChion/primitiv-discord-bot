@@ -68,3 +68,21 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+self.addEventListener("push", (event: PushEvent) => {
+  const data = event.data?.json() as { title?: string; body?: string; url?: string } | undefined;
+  event.waitUntil(
+    self.registration.showNotification(data?.title ?? "EKOTONE", {
+      body: data?.body ?? "",
+      icon: "/icons/icon.svg",
+      badge: "/icons/icon.svg",
+      data: { url: data?.url ?? "/schedule" },
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event: NotificationEvent) => {
+  event.notification.close();
+  const url = (event.notification.data as { url: string }).url;
+  event.waitUntil(self.clients.openWindow(url));
+});

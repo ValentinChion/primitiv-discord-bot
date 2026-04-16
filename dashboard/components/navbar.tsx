@@ -32,6 +32,12 @@ export function Navbar() {
               >
                 Schedule
               </Link>
+              <Link
+                href="/primitiv/notifications"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Notifications
+              </Link>
             </div>
           </div>
           <button
