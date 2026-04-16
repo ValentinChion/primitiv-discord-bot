@@ -33,7 +33,7 @@ npm run dev          # Next.js development server
 npm run build        # Generate Prisma client + Next.js production build
 npm run lint         # ESLint
 npm run prisma:generate  # Regenerate Prisma client
-npm run prisma:migrate   # Apply migrations (dev)
+npm run prisma:migrate   # Apply migrations (dev) — will fail if DB has drift; use `npx prisma db push` instead
 npm run prisma:studio    # Open Prisma data browser
 ```
 
