@@ -49,7 +49,7 @@ export function NotificationForm({
       <p className="text-muted-foreground text-sm mb-6">
         {subscriberCount === null
           ? "Chargement…"
-          : `${subscriberCount} abonné${subscriberCount !== 1 ? "s" : ""}`}
+          : `${subscriberCount} abonné${subscriberCount === 1 ? "" : "s"}`}
       </p>
 
       <Card>
@@ -99,9 +99,9 @@ export function NotificationForm({
 
           {result && (
             <p className="text-sm text-center text-muted-foreground">
-              ✓ {result.sent} envoyé{result.sent !== 1 ? "s" : ""}
+              ✓ {result.sent} envoyé{result.sent === 1 ? "" : "s"}
               {result.failed > 0 &&
-                ` · ${result.failed} échoué${result.failed !== 1 ? "s" : ""}`}
+                ` · ${result.failed} échoué${result.failed === 1 ? "" : "s"}`}
             </p>
           )}
           {error && (

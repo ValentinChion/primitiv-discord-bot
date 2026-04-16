@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
 import { sessionOptions, SessionData } from "@/lib/session";
-import { timingSafeEqual } from "crypto";
+import { timingSafeEqual } from "node:crypto";
 
 export async function POST(request: NextRequest) {
   const { password } = await request.json();

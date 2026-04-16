@@ -10,11 +10,11 @@
 import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import path from "node:path";
 
 const args = process.argv.slice(2);
 const envFileFlag = args.indexOf("--env-file");
-const envFile = envFileFlag !== -1 ? args[envFileFlag + 1] : ".env";
+const envFile = envFileFlag === -1 ? ".env" : args[envFileFlag + 1];
 
 let raw;
 try {
@@ -31,7 +31,7 @@ const secrets = Object.fromEntries(
     .map((line) => {
       const eq = line.indexOf("=");
       return [line.slice(0, eq).trim(), line.slice(eq + 1).trim()];
-    })
+    }),
 );
 
 const count = Object.keys(secrets).length;
@@ -41,9 +41,9 @@ if (count === 0) {
 }
 
 console.log(`Uploading ${count} secrets from ${envFile}…`);
-Object.keys(secrets).forEach((k) => console.log(" ", k));
+for (const k of Object.keys(secrets)) console.log(" ", k);
 
-const tmpFile = join(tmpdir(), `wrangler-secrets-${Date.now()}.json`);
+const tmpFile = path.join(tmpdir(), `wrangler-secrets-${Date.now()}.json`);
 writeFileSync(tmpFile, JSON.stringify(secrets));
 
 try {

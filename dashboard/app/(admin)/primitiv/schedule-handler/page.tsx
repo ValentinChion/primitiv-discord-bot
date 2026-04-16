@@ -12,7 +12,6 @@ import {
 import {
   SlotDialog,
   SlotForm,
-  EMPTY_FORM,
 } from "@/features/schedule-handler/slot-dialog";
 
 const DAY_ORDER: Record<Day, number> = { FRIDAY: 0, SATURDAY: 1, SUNDAY: 2 };
@@ -29,15 +28,11 @@ export default function ScheduleHandlerPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSlot, setEditingSlot] = useState<Slot | null>(null);
 
-  useEffect(() => {
-    fetchSlots();
-  }, []);
-
   const fetchSlots = async () => {
     const res = await fetch("/api/schedule");
     const data = await res.json();
     setSlots(
-      data.sort(
+      data.toSorted(
         (a: Slot, b: Slot) =>
           DAY_ORDER[a.day] - DAY_ORDER[b.day] ||
           new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
@@ -45,6 +40,10 @@ export default function ScheduleHandlerPage() {
     );
     setLoading(false);
   };
+
+  useEffect(() => {
+    fetchSlots();
+  }, []);
 
   const openAdd = () => {
     setEditingSlot(null);

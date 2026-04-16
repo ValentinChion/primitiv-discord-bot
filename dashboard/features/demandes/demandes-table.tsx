@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { StatutBadge, Statut } from "./statut-badge";
 
-export type { Statut };
+
 
 export interface Demande {
   id: number;
@@ -136,3 +136,5 @@ export function DemandesTable({ demandes, onDelete, onUpdateStatut }: Props) {
     </div>
   );
 }
+
+export {type Statut} from "./statut-badge";

@@ -20,8 +20,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ ok: true }, { status: 201 });
-  } catch (err) {
-    console.error("[notifications/subscribe] POST error", err);
+  } catch (error) {
+    console.error("[notifications/subscribe] POST error", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
@@ -35,8 +35,8 @@ export async function DELETE(req: NextRequest) {
 
     await prisma.pushSubscription.delete({ where: { endpoint } });
     return NextResponse.json({ ok: true });
-  } catch (err) {
-    console.error("[notifications/subscribe] DELETE error", err);
+  } catch (error) {
+    console.error("[notifications/subscribe] DELETE error", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

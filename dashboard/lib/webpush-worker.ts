@@ -5,19 +5,19 @@
 const ENC = new TextEncoder();
 
 function b64uDecode(s: string): Uint8Array<ArrayBuffer> {
-  const b64 = s.replace(/-/g, "+").replace(/_/g, "/");
+  const b64 = s.replaceAll('-', "+").replaceAll('_', "/");
   const raw = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4));
   const buf = new ArrayBuffer(raw.length);
   const out = new Uint8Array(buf);
-  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  for (let i = 0; i < raw.length; i++) out[i] = raw.codePointAt(i)!;
   return out;
 }
 
 function b64uEncode(buf: ArrayBuffer | Uint8Array<ArrayBuffer>): string {
   const bytes = buf instanceof ArrayBuffer ? new Uint8Array(buf) : buf;
-  return btoa(String.fromCharCode(...bytes))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
+  return btoa(String.fromCodePoint(...bytes))
+    .replaceAll('+', "-")
+    .replaceAll('/', "_")
     .replace(/=+$/, "");
 }
 
@@ -84,7 +84,7 @@ async function vapidJWT(endpoint: string): Promise<{ jwt: string; publicKey: str
     ENC.encode(
       JSON.stringify({
         aud: origin,
-        exp: Math.floor(Date.now() / 1000) + 43200,
+        exp: Math.floor(Date.now() / 1000) + 43_200,
         sub: process.env.VAPID_SUBJECT,
       }),
     ).buffer,
@@ -141,7 +141,7 @@ async function encryptPayload(
   // RFC 8291 §3.3 — derive IKM from ECDH secret + auth secret
   // key_info = "WebPush: info\0" || ua_public (65B) || as_public (65B)
   const keyInfo = new Uint8Array(new ArrayBuffer(14 + 65 + 65));
-  keyInfo.set(ENC.encode("WebPush: info\x00"));
+  keyInfo.set(ENC.encode("WebPush: info\u0000"));
   keyInfo.set(clientPub, 14);
   keyInfo.set(serverPub, 14 + 65);
 
@@ -155,12 +155,12 @@ async function encryptPayload(
   const prk = await hkdfExtract(salt, ikm);
   const cek = await hkdfExpand(
     prk,
-    new Uint8Array(ENC.encode("Content-Encoding: aes128gcm\x00").buffer),
+    new Uint8Array(ENC.encode("Content-Encoding: aes128gcm\u0000").buffer),
     16,
   );
   const nonce = await hkdfExpand(
     prk,
-    new Uint8Array(ENC.encode("Content-Encoding: nonce\x00").buffer),
+    new Uint8Array(ENC.encode("Content-Encoding: nonce\u0000").buffer),
     12,
   );
 

@@ -18,6 +18,9 @@ const DAYS: { key: Day; label: string }[] = [
 const FESTIVAL_START = new Date("2026-05-29T00:00:00");
 const FESTIVAL_END = new Date("2026-06-01T00:00:00");
 
+const fmt = (iso: string) =>
+  new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
 const NOISE_BG =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
@@ -28,8 +31,8 @@ export default function SchedulePage() {
   const [view, setView] = useState<View>("schedule");
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [now, setNow] = useState(() => {
-    if (typeof window !== "undefined") {
-      const p = new URLSearchParams(window.location.search).get("mockNow");
+    if (globalThis.window !== undefined) {
+      const p = new URLSearchParams(globalThis.location.search).get("mockNow");
       if (p) return new Date(p);
     }
     return new Date();
@@ -66,7 +69,7 @@ export default function SchedulePage() {
 
   const filtered = slots
     .filter((s) => s.day === selectedDay && s.stage === selectedStage)
-    .sort(
+    .toSorted(
       (a, b) =>
         new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
     );
@@ -79,30 +82,21 @@ export default function SchedulePage() {
     );
   };
 
-  const nowSlot = slots.find(isPlaying) ?? null;
+  const nowSlot = slots.find((s) => isPlaying(s)) ?? null;
   const nextSlot =
     slots
       .filter((s) => new Date(s.startTime).getTime() > now.getTime())
-      .sort(
+      .toSorted(
         (a, b) =>
           new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
       )[0] ?? null;
 
   const isFestivalPeriod = now >= FESTIVAL_START && now < FESTIVAL_END;
   const showNowTab = nowSlot !== null || isFestivalPeriod;
-
-  useEffect(() => {
-    if (!showNowTab && view === "now") setView("schedule");
-  }, [showNowTab, view]);
-
-  const fmt = (iso: string) =>
-    new Date(iso).toLocaleTimeString("fr-FR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const effectiveView = !showNowTab && view === "now" ? "schedule" : view;
 
   const dayLabel = (day: Day) =>
-    day === "FRIDAY" ? "Vendredi" : day === "SATURDAY" ? "Samedi" : "Dimanche";
+    day === "FRIDAY" ? "Vendredi" : (day === "SATURDAY" ? "Samedi" : "Dimanche");
 
   return (
     <div className="min-h-svh bg-sch-bg text-sch-text relative antialiased">
@@ -143,17 +137,17 @@ export default function SchedulePage() {
           {showNowTab && (
             <button
               role="tab"
-              aria-selected={view === "now"}
+              aria-selected={effectiveView === "now"}
               onClick={() => { setView("now"); setSelectedSlot(null); }}
               className={[
                 "shrink-0 bg-transparent border-b-2 -mb-px px-4 py-3.5",
                 "font-barlow font-semibold text-[0.82rem] tracking-[0.12em] uppercase",
                 "cursor-pointer transition-colors duration-150 whitespace-nowrap inline-flex items-center gap-1.5",
-                view === "now"
+                effectiveView === "now"
                   ? "text-acid border-b-acid"
-                  : nowSlot
+                  : (nowSlot
                     ? "text-sch-text border-transparent hover:text-acid"
-                    : "text-sch-muted border-transparent hover:text-sch-text",
+                    : "text-sch-muted border-transparent hover:text-sch-text"),
               ].join(" ")}
             >
               {nowSlot && (
@@ -164,7 +158,7 @@ export default function SchedulePage() {
           )}
 
           {DAYS.map(({ key, label }) => {
-            const active = view === "schedule" && selectedDay === key;
+            const active = effectiveView === "schedule" && selectedDay === key;
             return (
               <button
                 key={key}
@@ -192,7 +186,7 @@ export default function SchedulePage() {
             <div className="font-mono-share text-[0.7rem] tracking-[0.2em] text-sch-muted uppercase text-center py-20 px-5">
               Chargement...
             </div>
-          ) : view === "now" ? (
+          ) : (effectiveView === "now" ? (
             <NowView
               nowSlot={nowSlot}
               nextSlot={nextSlot}
@@ -235,7 +229,7 @@ export default function SchedulePage() {
                   dayLabel={dayLabel}
                   onBack={() => setSelectedSlot(null)}
                 />
-              ) : filtered.length === 0 ? (
+              ) : (filtered.length === 0 ? (
                 <div className="font-mono-share text-[0.7rem] tracking-[0.2em] text-sch-muted uppercase text-center py-20 px-5">
                   Aucun set programmé
                 </div>
@@ -246,9 +240,9 @@ export default function SchedulePage() {
                   fmt={fmt}
                   onSelect={setSelectedSlot}
                 />
-              )}
+              ))}
             </>
-          )}
+          ))}
         </main>
 
         <footer className="px-5 py-10 font-mono-share text-[0.55rem] tracking-[0.25em] text-[#222] text-center uppercase">

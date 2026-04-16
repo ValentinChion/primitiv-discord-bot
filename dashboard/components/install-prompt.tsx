@@ -17,7 +17,7 @@ function isIos(): boolean {
 
 function isStandalone(): boolean {
   return (
-    window.matchMedia("(display-mode: standalone)").matches ||
+    globalThis.matchMedia("(display-mode: standalone)").matches ||
     ("standalone" in navigator &&
       (navigator as { standalone?: boolean }).standalone === true)
   );
@@ -127,8 +127,8 @@ export function InstallPrompt() {
       setAndroidPrompt(e as BeforeInstallPromptEvent);
       setKind("android");
     };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    globalThis.addEventListener("beforeinstallprompt", handler);
+    return () => globalThis.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
   const dismiss = () => {

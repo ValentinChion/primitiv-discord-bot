@@ -28,11 +28,11 @@ export async function POST(req: NextRequest) {
             JSON.stringify({ title, body, url: url ?? "/schedule" }),
           );
           sent++;
-        } catch (err: unknown) {
+        } catch (error: unknown) {
           failed++;
-          const status = (err as { statusCode?: number }).statusCode;
+          const status = (error as { statusCode?: number }).statusCode;
 
-          console.error(err)
+          console.error(error)
 
           if (status === 404 || status === 410) {
             expiredEndpoints.push(sub.endpoint);
@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ sent, failed });
-  } catch (err) {
-    console.error("[notifications/send] POST error", err);
+  } catch (error) {
+    console.error("[notifications/send] POST error", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

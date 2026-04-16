@@ -9,7 +9,7 @@ export function NotificationOptIn() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!("Notification" in window) || !("serviceWorker" in navigator)) return;
+    if (!("Notification" in globalThis) || !("serviceWorker" in navigator)) return;
     if (Notification.permission !== "default") return;
     if (localStorage.getItem(DISMISSED_KEY)) return;
     setVisible(true);
