@@ -14,7 +14,8 @@
     "test:cron": "tsx src/scripts/trigger-cron.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "discord",

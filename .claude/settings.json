@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c '\nFILE=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"\nif [[ -z \"$FILE\" ]]; then exit 0; fi\n\n# Only check TypeScript files\nif [[ \"$FILE\" != *.ts && \"$FILE\" != *.tsx ]]; then exit 0; fi\n\nROOT=\"/Users/valentinchion/src/primitiv-discord-bot\"\nif [[ \"$FILE\" == \"$ROOT/bot/\"* ]]; then\n  PKG=\"$ROOT/bot\"\nelif [[ \"$FILE\" == \"$ROOT/dashboard/\"* ]]; then\n  PKG=\"$ROOT/dashboard\"\nelse\n  exit 0\nfi\n\nHAS_ERRORS=0\n\necho \"[typecheck] $(basename $PKG)...\"\nTSC_OUT=$(cd \"$PKG\" && npm run typecheck 2>&1)\nTSC_EXIT=$?\nif [ $TSC_EXIT -ne 0 ]; then\n  echo \"$TSC_OUT\"\n  echo \"[typecheck] FAILED\"\n  HAS_ERRORS=1\nelse\n  echo \"[typecheck] OK\"\nfi\n\nif [[ \"$PKG\" == \"$ROOT/dashboard\" ]]; then\n  echo \"[eslint] $(basename $FILE)...\"\n  ESLINT_OUT=$(cd \"$PKG\" && npx eslint \"$FILE\" 2>&1)\n  ESLINT_EXIT=$?\n  if [ $ESLINT_EXIT -ne 0 ]; then\n    echo \"$ESLINT_OUT\"\n    echo \"[eslint] FAILED\"\n    HAS_ERRORS=1\n  else\n    echo \"[eslint] OK\"\n  fi\nfi\n\nexit $HAS_ERRORS\n'"
+          }
+        ]
+      }
+    ]
+  }
+}
