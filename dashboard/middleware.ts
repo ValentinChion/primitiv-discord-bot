@@ -7,11 +7,12 @@ export async function middleware(request: NextRequest) {
   const session = await getIronSession<SessionData>(request, response, sessionOptions);
 
   if (!session.isLoggedIn) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const from = encodeURIComponent(request.nextUrl.pathname);
+    return NextResponse.redirect(new URL(`/login?from=${from}`, request.url));
   }
   return response;
 }
 
 export const config = {
-  matcher: ["/primitiv/:path*"],
+  matcher: ["/primitiv/:path*", "/tirage", "/tirage/:path*"],
 };

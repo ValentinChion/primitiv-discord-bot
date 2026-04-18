@@ -83,3 +83,11 @@ model PushSubscription {
   auth      String
   createdAt DateTime @default(now())
 }
+
+model Participant {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  phone     String
+  createdAt DateTime @default(now())
+}

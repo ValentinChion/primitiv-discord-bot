@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,7 +22,8 @@ export default function LoginPage() {
     });
 
     if (res.ok) {
-      router.push("/primitiv");
+      const from = searchParams.get("from");
+      router.push(from?.startsWith("/") ? from : "/primitiv");
     } else {
       const data = await res.json();
       setError(data.error ?? "Mot de passe incorrect");
