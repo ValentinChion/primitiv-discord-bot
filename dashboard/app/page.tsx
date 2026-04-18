@@ -55,6 +55,7 @@ export default function HomePage() {
           display: flex;
           flex-direction: column;
           justify-content: flex-end;
+          gap: 10px;
           padding: clamp(24px, 6vw, 48px);
           text-decoration: none;
           position: relative;
@@ -121,9 +122,6 @@ export default function HomePage() {
         }
 
         .tile-meta {
-          position: absolute;
-          bottom: clamp(24px, 6vw, 48px);
-          right: clamp(24px, 6vw, 48px);
           display: flex;
           align-items: center;
           gap: 8px;
