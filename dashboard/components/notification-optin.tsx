@@ -55,7 +55,7 @@ export function NotificationOptIn() {
         <button
           onClick={handleDismiss}
           aria-label="Fermer"
-          className="font-mono-share text-[0.7rem] text-[#444] hover:text-[#888] cursor-pointer bg-transparent border-none px-1"
+          className="font-mono-share text-[0.9rem] text-[#888] hover:text-[#ccc] cursor-pointer bg-transparent border-none px-1"
         >
           ×
         </button>

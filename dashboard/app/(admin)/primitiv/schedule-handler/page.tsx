@@ -16,6 +16,18 @@ import {
 
 const DAY_ORDER: Record<Day, number> = { FRIDAY: 0, SATURDAY: 1, SUNDAY: 2 };
 
+const festivalMinutes = (iso: string): number => {
+  const parts = new Intl.DateTimeFormat("fr-FR", {
+    hour: "numeric",
+    minute: "numeric",
+    timeZone: "Europe/Paris",
+    hour12: false,
+  }).formatToParts(new Date(iso));
+  const h = parseInt(parts.find((p) => p.type === "hour")!.value);
+  const m = parseInt(parts.find((p) => p.type === "minute")!.value);
+  return h >= 12 ? h * 60 + m : (h + 24) * 60 + m;
+};
+
 const DAY_DATES: Record<Day, string> = {
   FRIDAY: "2026-05-29",
   SATURDAY: "2026-05-30",
@@ -35,7 +47,7 @@ export default function ScheduleHandlerPage() {
       data.toSorted(
         (a: Slot, b: Slot) =>
           DAY_ORDER[a.day] - DAY_ORDER[b.day] ||
-          new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+          festivalMinutes(a.startTime) - festivalMinutes(b.startTime),
       ),
     );
     setLoading(false);
@@ -65,8 +77,8 @@ export default function ScheduleHandlerPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
-        startTime: `${DAY_DATES[form.day]}T${form.startTime}`,
-        endTime: `${DAY_DATES[form.day]}T${form.endTime}`,
+        startTime: `${DAY_DATES[form.day]}T${form.startTime}:00+02:00`,
+        endTime: `${DAY_DATES[form.day]}T${form.endTime}:00+02:00`,
         note: form.note || null,
         description: form.description || null,
         imageUrl: form.imageUrl || null,

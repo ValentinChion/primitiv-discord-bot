@@ -28,7 +28,7 @@ function DismissButton({ onDismiss }: { onDismiss: () => void }) {
     <button
       onClick={onDismiss}
       aria-label="Fermer"
-      className="font-mono-share text-[0.7rem] text-[#444] hover:text-[#888] cursor-pointer bg-transparent border-none px-1 shrink-0"
+      className="font-mono-share text-[0.9rem] text-[#888] hover:text-[#ccc] cursor-pointer bg-transparent border-none px-1 shrink-0"
     >
       ×
     </button>

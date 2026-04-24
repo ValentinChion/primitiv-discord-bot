@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { NowView, Slot } from "@/features/schedule/now-view";
 import { SlotDetail } from "@/features/schedule/slot-detail";
 import { SlotList } from "@/features/schedule/slot-list";
@@ -19,7 +20,19 @@ const FESTIVAL_START = new Date("2026-05-29T00:00:00");
 const FESTIVAL_END = new Date("2026-06-01T00:00:00");
 
 const fmt = (iso: string) =>
-  new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
+
+const festivalMinutes = (iso: string): number => {
+  const parts = new Intl.DateTimeFormat("fr-FR", {
+    hour: "numeric",
+    minute: "numeric",
+    timeZone: "Europe/Paris",
+    hour12: false,
+  }).formatToParts(new Date(iso));
+  const h = parseInt(parts.find((p) => p.type === "hour")!.value);
+  const m = parseInt(parts.find((p) => p.type === "minute")!.value);
+  return h >= 12 ? h * 60 + m : (h + 24) * 60 + m;
+};
 
 const NOISE_BG =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E\")";
@@ -69,10 +82,7 @@ export default function SchedulePage() {
 
   const filtered = slots
     .filter((s) => s.day === selectedDay && s.stage === selectedStage)
-    .toSorted(
-      (a, b) =>
-        new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
-    );
+    .toSorted((a, b) => festivalMinutes(a.startTime) - festivalMinutes(b.startTime));
 
   const isPlaying = (slot: Slot) => {
     const t = now.getTime();
@@ -272,6 +282,16 @@ export default function SchedulePage() {
           </svg>
           Programme
         </button>
+        <Link
+          href="/map"
+          className="flex flex-1 flex-col items-center justify-center gap-1 font-mono-share text-[0.55rem] tracking-[0.2em] uppercase text-sch-muted hover:text-sch-text transition-colors"
+        >
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 2C7.239 2 5 4.239 5 7c0 3.866 5 11 5 11s5-7.134 5-11c0-2.761-2.239-5-5-5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+            <circle cx="10" cy="7" r="1.75" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+          Carte
+        </Link>
       </nav>
     </div>
   );

@@ -33,6 +33,12 @@ export function Navbar() {
                 Schedule
               </Link>
               <Link
+                href="/primitiv/map-handler"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Carte
+              </Link>
+              <Link
                 href="/primitiv/notifications"
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >

@@ -76,6 +76,25 @@ model Slot {
   updatedAt   DateTime @updatedAt
 }
 
+enum PinCategory {
+  SCENE
+  FOOD
+  SERVICES
+  INFOS
+  ACCESS
+}
+
+model MapPin {
+  id          String      @id @default(cuid())
+  label       String
+  category    PinCategory
+  lat         Float
+  lon         Float
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
 model PushSubscription {
   id        String   @id @default(cuid())
   endpoint  String   @unique

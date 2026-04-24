@@ -41,8 +41,15 @@ export const EMPTY_FORM: SlotForm = {
 };
 
 export const toTimeStr = (iso: string) => {
-  const d = new Date(iso);
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  const parts = new Intl.DateTimeFormat("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Paris",
+    hour12: false,
+  }).formatToParts(new Date(iso));
+  const h = parts.find((p) => p.type === "hour")!.value;
+  const m = parts.find((p) => p.type === "minute")!.value;
+  return `${h}:${m}`;
 };
 
 interface Props {
@@ -161,7 +168,7 @@ export function SlotDialog({ open, onOpenChange, editingSlot, onSave }: Props) {
               <img
                 src={form.imageUrl}
                 alt="preview"
-                className="w-full h-32 object-cover rounded mb-1"
+                className="w-full aspect-[5/4] object-cover rounded mb-1"
               />
             )}
             <Input
