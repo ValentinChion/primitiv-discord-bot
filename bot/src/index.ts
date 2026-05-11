@@ -14,9 +14,13 @@ import { generateReport } from "./handlers/report.js";
 // Lazy-load handlers to avoid importing Prisma at module load time
 // This is important for the health check endpoint to work without database dependencies
 const loadHandlers = async () => {
-  const demande = await import("./handlers/demande.js");
+  const [demande, help] = await Promise.all([
+    import("./handlers/demande.js"),
+    import("./handlers/help.js"),
+  ]);
   return {
     handleDemandeCommand: demande.handleDemandeCommand,
+    handleHelpCommand: help.handleHelpCommand,
   };
 };
 
@@ -128,6 +132,8 @@ export default {
           switch (name) {
             case "demande":
               return handlers.handleDemandeCommand(interaction, env);
+            case "help":
+              return handlers.handleHelpCommand();
             default:
               return new Response(
                 JSON.stringify({

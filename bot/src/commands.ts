@@ -36,4 +36,9 @@ export const DEMANDE_COMMAND = {
   ],
 };
 
-export const ALL_COMMANDS = [DEMANDE_COMMAND];
+export const HELP_COMMAND = {
+  name: "help",
+  description: "Afficher la liste des commandes disponibles",
+};
+
+export const ALL_COMMANDS = [DEMANDE_COMMAND, HELP_COMMAND];
