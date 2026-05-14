@@ -7,7 +7,7 @@ import { SlotDetail } from "@/features/schedule/slot-detail";
 import { SlotList } from "@/features/schedule/slot-list";
 
 type Day = "FRIDAY" | "SATURDAY" | "SUNDAY";
-type Stage = "MAIN" | "AFTER";
+type Stage = "MAIN" | "CHILL";
 type View = "now" | "schedule";
 
 const DAYS: { key: Day; label: string }[] = [
@@ -77,7 +77,7 @@ export default function SchedulePage() {
       (s) => s.day === day && s.stage === selectedStage,
     );
     if (!hasCurrentStage)
-      setSelectedStage(selectedStage === "MAIN" ? "AFTER" : "MAIN");
+      setSelectedStage(selectedStage === "MAIN" ? "CHILL" : "MAIN");
   };
 
   const filtered = slots
@@ -211,7 +211,7 @@ export default function SchedulePage() {
                 aria-label="Sélection de la scène"
                 className="flex gap-2 px-5 py-3.5 border-b border-sch-border"
               >
-                {(["MAIN", "AFTER"] as Stage[]).map((stage) => {
+                {(["MAIN", "CHILL"] as Stage[]).map((stage) => {
                   const active = selectedStage === stage;
                   return (
                     <button
@@ -226,7 +226,7 @@ export default function SchedulePage() {
                           : "border-sch-border text-sch-muted hover:text-sch-text hover:border-[#333]",
                       ].join(" ")}
                     >
-                      {stage === "MAIN" ? "Main Stage" : "After"}
+                      {stage === "MAIN" ? "Main Stage" : "Chill"}
                     </button>
                   );
                 })}

@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 const PINS = [
   { label: "Main Stage", category: PinCategory.SCENE,    lat: 47.60590, lon: 3.94960, description: "Scène principale" },
-  { label: "After",      category: PinCategory.SCENE,    lat: 47.60560, lon: 3.94930, description: "Scène after" },
+  { label: "Chill Stage", category: PinCategory.SCENE,    lat: 47.60560, lon: 3.94930, description: "Scène chill" },
   { label: "Bar",        category: PinCategory.FOOD,     lat: 47.60600, lon: 3.95010, description: "Bar principal" },
   { label: "Cantine",    category: PinCategory.FOOD,     lat: 47.60590, lon: 3.95050, description: "Restauration sur place" },
   { label: "Foodtruck",  category: PinCategory.FOOD,     lat: 47.60578, lon: 3.95080, description: "Foodtruck" },

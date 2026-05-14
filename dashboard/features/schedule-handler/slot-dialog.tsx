@@ -117,7 +117,7 @@ export function SlotDialog({ open, onOpenChange, editingSlot, onSave }: Props) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="MAIN">Main Stage</SelectItem>
-                <SelectItem value="AFTER">After</SelectItem>
+                <SelectItem value="CHILL">Chill</SelectItem>
               </SelectContent>
             </Select>
           </div>

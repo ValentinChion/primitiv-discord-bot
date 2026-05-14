@@ -1,4 +1,4 @@
-type Stage = "MAIN" | "AFTER";
+type Stage = "MAIN" | "CHILL";
 type Day = "FRIDAY" | "SATURDAY" | "SUNDAY";
 
 export interface Slot {
@@ -48,7 +48,7 @@ export function NowView({ nowSlot, nextSlot, fmt, onSelectSlot }: Props) {
         <p className="font-mono-share text-[0.7rem] tracking-[0.12em] text-sch-muted uppercase mt-2">
           {fmt(nowSlot.startTime)} — {fmt(nowSlot.endTime)}
           {" · "}
-          {nowSlot.stage === "MAIN" ? "Main Stage" : "After"}
+          {nowSlot.stage === "MAIN" ? "Main Stage" : "Chill"}
         </p>
         {nowSlot.description && (
           <p className="font-barlow font-light text-[1rem] leading-relaxed text-sch-text/80 mt-6 max-w-prose">
@@ -90,7 +90,7 @@ export function NowView({ nowSlot, nextSlot, fmt, onSelectSlot }: Props) {
           <p className="font-mono-share text-[0.62rem] tracking-[0.1em] text-acid mt-3">
             {fmt(nextSlot.startTime)}
             {" · "}
-            {nextSlot.stage === "MAIN" ? "Main Stage" : "After"}
+            {nextSlot.stage === "MAIN" ? "Main Stage" : "Chill"}
           </p>
         </div>
       )}

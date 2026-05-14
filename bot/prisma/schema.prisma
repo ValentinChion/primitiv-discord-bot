@@ -22,19 +22,19 @@ enum Type {
 }
 
 model Demande {
-  id          Int       @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   name            String    @unique
   userId          String
   discordUsername String?
-  montant     Float
-  description String
-  type        Type
-  statut      Statut    @default(PENDING)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  factureUrl  String? // URL Google Drive de la facture
-  paiementId  Int? // ID de la demande de paiement associée (si type=REMBOURSEMENT)
-  Paiement    Paiement? @relation(fields: [paiementId], references: [id])
+  montant         Float
+  description     String
+  type            Type
+  statut          Statut    @default(PENDING)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  factureUrl      String? // URL Google Drive de la facture
+  paiementId      Int? // ID de la demande de paiement associée (si type=REMBOURSEMENT)
+  Paiement        Paiement? @relation(fields: [paiementId], references: [id])
 
   // Index pour les recherches rapides
   @@index([name])
@@ -59,7 +59,7 @@ enum Day {
 
 enum Stage {
   MAIN
-  AFTER
+  CHILL
 }
 
 model Slot {

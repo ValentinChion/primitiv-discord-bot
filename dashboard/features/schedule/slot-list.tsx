@@ -1,4 +1,4 @@
-type Stage = "MAIN" | "AFTER";
+type Stage = "MAIN" | "CHILL";
 type Day = "FRIDAY" | "SATURDAY" | "SUNDAY";
 
 interface Slot {

@@ -1,4 +1,4 @@
-type Stage = "MAIN" | "AFTER";
+type Stage = "MAIN" | "CHILL";
 type Day = "FRIDAY" | "SATURDAY" | "SUNDAY";
 
 interface Slot {
@@ -74,7 +74,7 @@ export function SlotDetail({ slot, fmt, dayLabel, onBack }: Props) {
         <p className="font-mono-share text-[0.68rem] tracking-[0.12em] text-sch-muted uppercase">
           {fmt(slot.startTime)} — {fmt(slot.endTime)}
           {" · "}
-          {slot.stage === "MAIN" ? "Main Stage" : "After"}
+          {slot.stage === "MAIN" ? "Main Stage" : "Chill"}
           {" · "}
           {dayLabel(slot.day)}
         </p>

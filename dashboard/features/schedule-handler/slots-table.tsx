@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 
 export type Day = "FRIDAY" | "SATURDAY" | "SUNDAY";
-export type Stage = "MAIN" | "AFTER";
+export type Stage = "MAIN" | "CHILL";
 
 export interface Slot {
   id: string;
@@ -71,7 +71,7 @@ export function SlotsTable({ slots, onEdit, onDelete }: Props) {
             <TableRow key={slot.id}>
               <TableCell>{DAY_LABEL[slot.day]}</TableCell>
               <TableCell>
-                {slot.stage === "MAIN" ? "Main Stage" : "After"}
+                {slot.stage === "MAIN" ? "Main Stage" : "Chill"}
               </TableCell>
               <TableCell>{formatTime(slot.startTime)}</TableCell>
               <TableCell>{formatTime(slot.endTime)}</TableCell>
