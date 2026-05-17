@@ -119,7 +119,7 @@ export default function SchedulePage() {
 
       <div className="relative z-[1] pb-[4.5rem]">
         {/* Header */}
-        <header className="pt-8 px-5 pb-5 border-b border-sch-border relative overflow-hidden">
+        <header className="pt-8 px-5 pb-5 border-b-gradient-brand relative overflow-hidden">
           <p className="font-mono-share text-[0.6rem] tracking-[0.25em] text-acid uppercase mb-0.5">
             Programme Officiel
           </p>
@@ -142,7 +142,7 @@ export default function SchedulePage() {
         <nav
           role="tablist"
           aria-label="Sélection du jour"
-          className="flex border-b border-sch-border px-5 no-scrollbar overflow-x-auto"
+          className="flex border-b-gradient-brand px-5 no-scrollbar overflow-x-auto"
         >
           {showNowTab && (
             <button
@@ -209,7 +209,7 @@ export default function SchedulePage() {
               <div
                 role="group"
                 aria-label="Sélection de la scène"
-                className="flex gap-2 px-5 py-3.5 border-b border-sch-border"
+                className="flex gap-2 px-5 py-3.5 border-b-gradient-brand"
               >
                 {(["MAIN", "CHILL"] as Stage[]).map((stage) => {
                   const active = selectedStage === stage;
@@ -263,7 +263,7 @@ export default function SchedulePage() {
       {/* Bottom Nav */}
       <nav
         aria-label="Navigation principale"
-        className="fixed bottom-0 inset-x-0 z-50 bg-sch-bg border-t border-sch-border flex items-stretch h-[4.5rem]"
+        className="fixed bottom-0 inset-x-0 z-50 bg-sch-bg border-t-gradient-brand flex items-stretch h-[4.5rem]"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <button

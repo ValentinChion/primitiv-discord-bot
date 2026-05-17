@@ -83,7 +83,7 @@ export default function DemandesPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <Card>
+      <Card className="border-gradient-brand">
         <CardHeader>
           <CardTitle className="text-2xl">Demandes Financières</CardTitle>
         </CardHeader>

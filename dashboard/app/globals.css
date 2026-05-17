@@ -89,7 +89,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* Schedule / Ekotone tokens */
-  --color-acid: #DDFF00;
+  --color-acid: #FF2D78;
   --color-sch-bg: #080808;
   --color-sch-text: #EFEFEF;
   --color-sch-muted: #484848;
@@ -99,6 +99,14 @@
   --font-barlow: 'Barlow Condensed', sans-serif;
   --animate-fadein: sch-fadein 0.35s ease both;
   --animate-pulse-dot: sch-pulse 1.6s ease-in-out infinite;
+
+  /* Brand / logo palette */
+  --color-brand-pink:   #FF2D78;
+  --color-brand-orange: #FF6E28;
+  --color-brand-cyan:   #00D4FF;
+  --color-brand-blue:   #2244EE;
+  --color-brand-purple: #A833FF;
+  --gradient-brand: linear-gradient(135deg, #FF2D78, #FF6E28, #00D4FF, #2244EE, #A833FF);
 }
 
 :root {
@@ -176,5 +184,63 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-gradient-brand {
+    background-image: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .border-gradient-brand {
+    position: relative;
+    isolation: isolate;
+  }
+  .border-gradient-brand::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background-image: var(--gradient-brand);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .bg-gradient-brand {
+    background-image: var(--gradient-brand);
+  }
+
+  .border-b-gradient-brand {
+    position: relative;
+  }
+  .border-b-gradient-brand::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-image: var(--gradient-brand);
+  }
+
+  .border-t-gradient-brand {
+    position: relative;
+  }
+  .border-t-gradient-brand::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-image: var(--gradient-brand);
   }
 }

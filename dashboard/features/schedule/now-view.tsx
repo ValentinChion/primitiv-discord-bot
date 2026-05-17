@@ -41,7 +41,7 @@ export function NowView({ nowSlot, nextSlot, fmt, onSelectSlot }: Props) {
         )}
         <h2
           onClick={() => onSelectSlot(nowSlot)}
-          className="font-bebas text-[clamp(3rem,14vw,6rem)] leading-[0.88] text-acid tracking-[0.01em] cursor-pointer hover:opacity-80 transition-opacity"
+          className="font-bebas text-[clamp(3rem,14vw,6rem)] leading-[0.88] text-gradient-brand tracking-[0.01em] cursor-pointer hover:opacity-80 transition-opacity"
         >
           {nowSlot.artistName}
         </h2>

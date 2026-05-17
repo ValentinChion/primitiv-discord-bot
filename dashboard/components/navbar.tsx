@@ -12,11 +12,11 @@ export function Navbar() {
   };
 
   return (
-    <nav className="border-b bg-background">
+    <nav className="border-b-gradient-brand bg-background">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link href="/" className="text-xl font-bold">
+            <Link href="/" className="text-xl font-bold text-gradient-brand">
               PRIMITIV
             </Link>
             <div className="flex gap-6">

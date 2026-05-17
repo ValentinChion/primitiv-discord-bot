@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  serverExternalPackages: ['@prisma/client'],
+  webpack: (config) => {
+    config.experiments = {
+      ...config.experiments,
+      asyncWebAssembly: true,
+      layers: true,
+    };
+    return config;
+  },
 };
 
 // Only wrap with serwist in production — withSerwist injects webpack plugins that

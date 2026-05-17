@@ -38,8 +38,14 @@ export default function HomePage() {
           font-family: 'Bebas Neue', cursive;
           font-size: 14px;
           letter-spacing: 0.28em;
-          color: #DDFF00;
           flex-shrink: 0;
+        }
+        .home-header span {
+          background-image: var(--gradient-brand);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          display: inline-block;
         }
 
         .tiles {
@@ -65,8 +71,7 @@ export default function HomePage() {
           animation: tile-in 0.5s ease both;
           overflow: hidden;
         }
-        .tile:first-child { animation-delay: 0.05s; }
-        .tile:last-child  { animation-delay: 0.15s; }
+        .tile { animation-delay: 0.05s; }
 
         .tile::before {
           content: '';
@@ -75,14 +80,14 @@ export default function HomePage() {
           top: 0;
           bottom: 0;
           width: 3px;
-          background: #DDFF00;
+          background: var(--gradient-brand);
           transform: scaleY(0);
           transform-origin: bottom;
           transition: transform 0.25s cubic-bezier(.22,.68,0,1.2);
         }
         .tile:hover::before { transform: scaleY(1); }
-        .tile:hover { background: rgba(221,255,0,0.03); }
-        .tile:active { background: rgba(221,255,0,0.06); }
+        .tile:hover { background: rgba(255,45,120,0.03); }
+        .tile:active { background: rgba(255,45,120,0.06); }
 
         .tile-eyebrow {
           font-family: 'Barlow Condensed', sans-serif;
@@ -109,7 +114,7 @@ export default function HomePage() {
         .tile-arrow {
           display: inline-block;
           margin-left: 12px;
-          color: #DDFF00;
+          color: #FF2D78;
           opacity: 0;
           transform: translateX(-6px);
           transition: opacity 0.2s ease, transform 0.2s ease;
@@ -165,7 +170,7 @@ export default function HomePage() {
       <div className="home-wrap">
         <div className="noise" aria-hidden />
 
-        <div className="home-header">EKOTONE · 2026</div>
+        <div className="home-header"><span>EKOTONE · 2026</span></div>
 
         <div className="tiles">
           <Link href="/schedule" className="tile">
@@ -185,22 +190,6 @@ export default function HomePage() {
             </div>
           </Link>
 
-          <div className="tile-divider" />
-
-          <Link href="/tirage" className="tile">
-            <div className="tile-eyebrow">Gestion</div>
-            <div className="tile-title">
-              Tirage au sort
-              <span className="tile-arrow">→</span>
-            </div>
-            <div className="tile-meta">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              Accès restreint
-            </div>
-          </Link>
         </div>
       </div>
     </>

@@ -39,8 +39,8 @@ export function SlotList({ slots, isPlaying, fmt, onSelect }: Props) {
           >
             {playing && (
               <span
-                className="absolute left-[-1.25rem] top-0 bottom-0 w-0.5 bg-acid"
-                style={{ boxShadow: "0 0 14px 2px rgba(221,255,0,0.35)" }}
+                className="absolute left-[-1.25rem] top-0 bottom-0 w-0.5 bg-gradient-brand"
+                style={{ boxShadow: "0 0 14px 2px rgba(255,45,120,0.35)" }}
               />
             )}
 
@@ -70,7 +70,7 @@ export function SlotList({ slots, isPlaying, fmt, onSelect }: Props) {
                 )}
                 {playing && (
                   <div className="inline-flex items-center gap-1.5 mt-1.5 font-mono-share text-[0.58rem] tracking-[0.2em] text-acid uppercase">
-                    <span className="w-[5px] h-[5px] rounded-full bg-acid shrink-0 animate-pulse-dot shadow-[0_0_6px_#DDFF00]" />
+                    <span className="w-[5px] h-[5px] rounded-full bg-acid shrink-0 animate-pulse-dot shadow-[0_0_8px_#FF2D78]" />
                     En cours
                   </div>
                 )}

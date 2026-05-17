@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <div className="container mx-auto p-6">
       <div className="flex flex-col items-center gap-8 text-center max-w-3xl mx-auto mt-16">
-        <h1 className="text-4xl font-bold tracking-tight">
+        <h1 className="text-4xl font-bold tracking-tight text-gradient-brand">
           PRIMITIV: Suivis Financier
         </h1>
         <p className="text-muted-foreground text-lg">
@@ -20,7 +20,7 @@ export default function Home() {
         </p>
 
         <div className="w-full mt-8 max-w-sm">
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow border-gradient-brand">
             <CardHeader>
               <CardTitle>Demandes</CardTitle>
               <CardDescription>

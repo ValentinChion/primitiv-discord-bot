@@ -70,7 +70,7 @@ export function SlotDetail({ slot, fmt, dayLabel, onBack }: Props) {
         <h2 className="font-bebas text-[clamp(3.5rem,16vw,6rem)] leading-[0.88] text-sch-text tracking-[0.01em]">
           {slot.artistName}
         </h2>
-        <div className="h-px w-10 bg-acid mt-3 mb-3" />
+        <div className="h-px w-10 bg-gradient-brand mt-3 mb-3" />
         <p className="font-mono-share text-[0.68rem] tracking-[0.12em] text-sch-muted uppercase">
           {fmt(slot.startTime)} — {fmt(slot.endTime)}
           {" · "}

@@ -55,7 +55,7 @@ export default function MapHandlerPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <Card>
+      <Card className="border-gradient-brand">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-2xl">Carte — Ekotone</CardTitle>
           <Button onClick={openAdd}>
