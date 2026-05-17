@@ -2,10 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const slots = await prisma.slot.findMany({
-    orderBy: [{ day: "asc" }, { startTime: "asc" }],
-  });
-  return NextResponse.json(slots);
+  try {
+    const slots = await prisma.slot.findMany({
+      orderBy: [{ day: "asc" }, { startTime: "asc" }],
+    });
+    return NextResponse.json(slots);
+  } catch (error) {
+    console.error("Error fetching slots:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch slots" },
+      { status: 500 },
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
