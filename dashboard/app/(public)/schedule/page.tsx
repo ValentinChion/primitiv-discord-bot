@@ -29,8 +29,8 @@ const festivalMinutes = (iso: string): number => {
     timeZone: "Europe/Paris",
     hour12: false,
   }).formatToParts(new Date(iso));
-  const h = parseInt(parts.find((p) => p.type === "hour")!.value);
-  const m = parseInt(parts.find((p) => p.type === "minute")!.value);
+  const h = Number.parseInt(parts.find((p) => p.type === "hour")!.value);
+  const m = Number.parseInt(parts.find((p) => p.type === "minute")!.value);
   return h >= 12 ? h * 60 + m : (h + 24) * 60 + m;
 };
 
@@ -276,9 +276,9 @@ export default function SchedulePage() {
             className="text-acid"
           >
             <rect x="2" y="4" width="16" height="13" rx="1.5"
-                  stroke="currentColor" strokeWidth="1.5"/>
-            <path d="M2 8h16" stroke="currentColor" strokeWidth="1.5"/>
-            <path d="M6 2v4M14 2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              stroke="currentColor" strokeWidth="1.5" />
+            <path d="M2 8h16" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M6 2v4M14 2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
           Programme
         </button>
@@ -287,8 +287,8 @@ export default function SchedulePage() {
           className="flex flex-1 flex-col items-center justify-center gap-1 font-mono-share text-[0.55rem] tracking-[0.2em] uppercase text-sch-muted hover:text-sch-text transition-colors"
         >
           <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M10 2C7.239 2 5 4.239 5 7c0 3.866 5 11 5 11s5-7.134 5-11c0-2.761-2.239-5-5-5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-            <circle cx="10" cy="7" r="1.75" stroke="currentColor" strokeWidth="1.5"/>
+            <path d="M10 2C7.239 2 5 4.239 5 7c0 3.866 5 11 5 11s5-7.134 5-11c0-2.761-2.239-5-5-5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+            <circle cx="10" cy="7" r="1.75" stroke="currentColor" strokeWidth="1.5" />
           </svg>
           Carte
         </Link>

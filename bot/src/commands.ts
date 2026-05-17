@@ -1,4 +1,9 @@
-import { ApplicationCommandOptionType } from "discord.js";
+// Discord API option types — https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type
+const ApplicationCommandOptionType = {
+  String: 3,
+  Number: 10,
+  Attachment: 11,
+} as const;
 
 /**
  * Command definitions for the Discord bot

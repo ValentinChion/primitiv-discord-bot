@@ -30,13 +30,12 @@
     "@prisma/extension-accelerate": "^1.2.1",
     "chalk": "^5.6.2",
     "discord-interactions": "^4.1.0",
-    "discord.js": "^14.25.0",
-    "dotenv": "^16.3.1",
     "itty-router": "^5.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241127.0",
     "@types/node": "^20.0.0",
+    "dotenv": "^16.3.1",
     "prisma": "^6.18.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
