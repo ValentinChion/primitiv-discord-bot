@@ -142,7 +142,7 @@ export default function SchedulePage() {
         <nav
           role="tablist"
           aria-label="Sélection du jour"
-          className="flex border-b-gradient-brand px-5 no-scrollbar overflow-x-auto"
+          className="flex px-5 no-scrollbar overflow-x-auto"
         >
           {showNowTab && (
             <button
@@ -209,7 +209,7 @@ export default function SchedulePage() {
               <div
                 role="group"
                 aria-label="Sélection de la scène"
-                className="flex gap-2 px-5 py-3.5 border-b-gradient-brand"
+                className="flex gap-2 px-5 py-3.5"
               >
                 {(["MAIN", "CHILL"] as Stage[]).map((stage) => {
                   const active = selectedStage === stage;
