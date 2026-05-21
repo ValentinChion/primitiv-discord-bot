@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { NowView, Slot } from "@/features/schedule/now-view";
 import { SlotDetail } from "@/features/schedule/slot-detail";
 import { SlotList } from "@/features/schedule/slot-list";
@@ -109,6 +108,7 @@ export default function SchedulePage() {
     day === "FRIDAY" ? "Vendredi" : (day === "SATURDAY" ? "Samedi" : "Dimanche");
 
   return (
+    <>
     <div className="min-h-svh bg-sch-bg text-sch-text relative antialiased">
       {/* Noise overlay */}
       <div
@@ -260,39 +260,31 @@ export default function SchedulePage() {
         </footer>
       </div>
 
-      {/* Bottom Nav */}
-      <nav
-        aria-label="Navigation principale"
-        className="fixed bottom-0 inset-x-0 z-50 bg-sch-bg border-t-gradient-brand flex items-stretch h-[4.5rem]"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-      >
-        <button
-          aria-current="page"
-          className="flex flex-1 flex-col items-center justify-center gap-1 font-mono-share text-[0.55rem] tracking-[0.2em] uppercase text-acid cursor-pointer bg-transparent"
-        >
-          <svg
-            aria-hidden="true"
-            width="20" height="20" viewBox="0 0 20 20" fill="none"
-            className="text-acid"
-          >
-            <rect x="2" y="4" width="16" height="13" rx="1.5"
-              stroke="currentColor" strokeWidth="1.5" />
-            <path d="M2 8h16" stroke="currentColor" strokeWidth="1.5" />
-            <path d="M6 2v4M14 2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          Programme
-        </button>
-        <Link
-          href="/map"
-          className="flex flex-1 flex-col items-center justify-center gap-1 font-mono-share text-[0.55rem] tracking-[0.2em] uppercase text-sch-muted hover:text-sch-text transition-colors"
-        >
-          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M10 2C7.239 2 5 4.239 5 7c0 3.866 5 11 5 11s5-7.134 5-11c0-2.761-2.239-5-5-5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-            <circle cx="10" cy="7" r="1.75" stroke="currentColor" strokeWidth="1.5" />
-          </svg>
-          Carte
-        </Link>
-      </nav>
     </div>
+
+    {/* Bottom Nav — outside wrapper div for reliable fixed positioning on mobile */}
+    <nav
+      aria-label="Navigation principale"
+      className="fixed bottom-0 inset-x-0 z-50 bg-sch-bg border-t-gradient-brand flex items-stretch h-[4.5rem]"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <button
+        aria-current="page"
+        className="flex flex-1 flex-col items-center justify-center gap-1 font-mono-share text-[0.55rem] tracking-[0.2em] uppercase text-acid cursor-pointer bg-transparent"
+      >
+        <svg
+          aria-hidden="true"
+          width="20" height="20" viewBox="0 0 20 20" fill="none"
+          className="text-acid"
+        >
+          <rect x="2" y="4" width="16" height="13" rx="1.5"
+            stroke="currentColor" strokeWidth="1.5" />
+          <path d="M2 8h16" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M6 2v4M14 2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+        Programme
+      </button>
+    </nav>
+    </>
   );
 }

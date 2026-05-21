@@ -231,9 +231,6 @@
     background-image: var(--gradient-brand);
   }
 
-  .border-t-gradient-brand {
-    position: relative;
-  }
   .border-t-gradient-brand::before {
     content: '';
     position: absolute;
