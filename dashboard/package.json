@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--experimental-wasm-modules' next dev --port 33",
+    "dev": "next dev --webpack --port 33",
     "build": "prisma generate && NODE_OPTIONS='--experimental-wasm-modules' next build --webpack",
     "build:cf": "node scripts/build-cf.mjs",
     "deploy": "pnpm run build:cf && npx wrangler deploy",
