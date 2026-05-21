@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  serverExternalPackages: ['@prisma/client'],
+  serverExternalPackages: ['@prisma/client', '@prisma/adapter-pg', 'pg'],
   // Turbopack (dev): WASM is handled via NODE_OPTIONS='--experimental-wasm-modules'
   turbopack: {},
   // Webpack (production via `next build --webpack`): enable async WASM for Prisma
