@@ -25,7 +25,7 @@ const festivalMinutes = (iso: string): number => {
   }).formatToParts(new Date(iso));
   const h = parseInt(parts.find((p) => p.type === "hour")!.value);
   const m = parseInt(parts.find((p) => p.type === "minute")!.value);
-  return h >= 12 ? h * 60 + m : (h + 24) * 60 + m;
+  return h >= 11 ? h * 60 + m : (h + 24) * 60 + m;
 };
 
 const DAY_DATES: Record<Day, string> = {

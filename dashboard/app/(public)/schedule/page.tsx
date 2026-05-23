@@ -30,7 +30,7 @@ const festivalMinutes = (iso: string): number => {
   }).formatToParts(new Date(iso));
   const h = Number.parseInt(parts.find((p) => p.type === "hour")!.value);
   const m = Number.parseInt(parts.find((p) => p.type === "minute")!.value);
-  return h >= 12 ? h * 60 + m : (h + 24) * 60 + m;
+  return h >= 11 ? h * 60 + m : (h + 24) * 60 + m;
 };
 
 const NOISE_BG =
@@ -205,39 +205,40 @@ export default function SchedulePage() {
             />
           ) : (
             <>
-              {/* Stage toggle */}
-              <div
-                role="group"
-                aria-label="Sélection de la scène"
-                className="flex gap-2 px-5 py-3.5"
-              >
-                {(["MAIN", "CHILL"] as Stage[]).map((stage) => {
-                  const active = selectedStage === stage;
-                  return (
-                    <button
-                      key={stage}
-                      aria-pressed={active}
-                      onClick={() => { setSelectedStage(stage); setSelectedSlot(null); }}
-                      className={[
-                        "font-mono-share text-[0.62rem] tracking-[0.18em] uppercase",
-                        "bg-transparent border px-3.5 py-1.5 cursor-pointer transition-all duration-150",
-                        active
-                          ? "border-acid text-acid bg-acid/[0.04]"
-                          : "border-sch-border text-sch-muted hover:text-sch-text hover:border-[#333]",
-                      ].join(" ")}
-                    >
-                      {stage === "MAIN" ? "Main Stage" : "Chill"}
-                    </button>
-                  );
-                })}
-              </div>
+              {/* Stage toggle — hidden when viewing a slot detail */}
+              {!selectedSlot && (
+                <div
+                  role="group"
+                  aria-label="Sélection de la scène"
+                  className="flex gap-2 px-5 py-3.5"
+                >
+                  {(["MAIN", "CHILL"] as Stage[]).map((stage) => {
+                    const active = selectedStage === stage;
+                    return (
+                      <button
+                        key={stage}
+                        aria-pressed={active}
+                        onClick={() => { setSelectedStage(stage); setSelectedSlot(null); }}
+                        className={[
+                          "font-mono-share text-[0.62rem] tracking-[0.18em] uppercase",
+                          "bg-transparent border px-3.5 py-1.5 cursor-pointer transition-all duration-150",
+                          active
+                            ? "border-acid text-acid bg-acid/[0.04]"
+                            : "border-sch-border text-sch-muted hover:text-sch-text hover:border-[#333]",
+                        ].join(" ")}
+                      >
+                        {stage === "MAIN" ? "Main Stage" : "Chill"}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
 
               {selectedSlot ? (
                 <SlotDetail
                   slot={selectedSlot}
                   fmt={fmt}
                   dayLabel={dayLabel}
-                  onBack={() => setSelectedSlot(null)}
                 />
               ) : (filtered.length === 0 ? (
                 <div className="font-mono-share text-[0.7rem] tracking-[0.2em] text-sch-muted uppercase text-center py-20 px-5">
@@ -268,22 +269,37 @@ export default function SchedulePage() {
       className="fixed bottom-0 inset-x-0 z-50 bg-sch-bg border-t-gradient-brand flex items-stretch h-[4.5rem]"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <button
-        aria-current="page"
-        className="flex flex-1 flex-col items-center justify-center gap-1 font-mono-share text-[0.55rem] tracking-[0.2em] uppercase text-acid cursor-pointer bg-transparent"
-      >
-        <svg
-          aria-hidden="true"
-          width="20" height="20" viewBox="0 0 20 20" fill="none"
-          className="text-acid"
+      {selectedSlot ? (
+        <button
+          onClick={() => setSelectedSlot(null)}
+          className="flex flex-1 items-center justify-center gap-3 font-mono-share text-[0.62rem] tracking-[0.22em] uppercase text-sch-muted hover:text-sch-text transition-colors cursor-pointer bg-transparent"
         >
-          <rect x="2" y="4" width="16" height="13" rx="1.5"
-            stroke="currentColor" strokeWidth="1.5" />
-          <path d="M2 8h16" stroke="currentColor" strokeWidth="1.5" />
-          <path d="M6 2v4M14 2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-        Programme
-      </button>
+          <svg
+            aria-hidden="true"
+            width="16" height="16" viewBox="0 0 16 16" fill="none"
+          >
+            <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Retour
+        </button>
+      ) : (
+        <button
+          aria-current="page"
+          className="flex flex-1 flex-col items-center justify-center gap-1 font-mono-share text-[0.55rem] tracking-[0.2em] uppercase text-acid cursor-pointer bg-transparent"
+        >
+          <svg
+            aria-hidden="true"
+            width="20" height="20" viewBox="0 0 20 20" fill="none"
+            className="text-acid"
+          >
+            <rect x="2" y="4" width="16" height="13" rx="1.5"
+              stroke="currentColor" strokeWidth="1.5" />
+            <path d="M2 8h16" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M6 2v4M14 2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          Programme
+        </button>
+      )}
     </nav>
     </>
   );
